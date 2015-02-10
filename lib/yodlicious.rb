@@ -1,5 +1,3 @@
 require "yodlicious/version"
+require "yodlicious/parameter_translator"
 
-module Yodlicious
-  # Your code goes here...
-end
