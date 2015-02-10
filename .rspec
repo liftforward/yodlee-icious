@@ -1,0 +1,5 @@
+--color
+--profile
+--format doc
+--tag ~skip
+--require spec_helper

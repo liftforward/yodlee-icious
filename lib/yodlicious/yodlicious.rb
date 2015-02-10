@@ -1,22 +1,25 @@
 require 'rest_client'
+require 'json'
 
 module Yodlicious
   class YodleeApi
 
+    def initialize config
+      @base_url = config['base_url']
+      @username = config['username']
+      @password = config['password']
+    end
+
     def base_url
-      Yodlee::Config.base_url
+      @base_url
     end
 
     def username
-      Yodlee::Config.username
+      @username
     end
 
     def password
-      Yodlee::Config.password
-    end
-
-    def register_users
-      Yodlee::Config.register_users
+      @password
     end
 
     def cobranded_login
@@ -147,8 +150,8 @@ module Yodlicious
       user_auth['userContext']['conversationCredentials']['sessionToken']
     end
 
-    def logger
-      Rails.logger
-    end
+    # def logger
+    #   Rails.logger
+    # end
   end
 end
