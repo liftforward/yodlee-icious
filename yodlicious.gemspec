@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.version       = Yodlicious::VERSION
   spec.authors       = ["Drew Nichols"]
   spec.email         = ["drew@liftforward.com"]
-  spec.summary       = %q{TODO: Write a short summary. Required.}
-  spec.description   = %q{TODO: Write a longer description. Optional.}
+  spec.summary       = "Yodlee API Client Gem"
+  spec.description   = "Delicious Yodlee API Client Gem"
   spec.homepage      = ""
   spec.license       = "MIT"
 
