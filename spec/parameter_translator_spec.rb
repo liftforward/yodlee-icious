@@ -76,7 +76,7 @@ describe 'parameter translator' do
       }
     }
 
-    it "converts correctly to params hash", focus: true do
+    it "converts correctly to params hash" do
       expect(subject.site_login_form_to_add_site_account_params(login_form)).to be == add_site_params
     end
 
