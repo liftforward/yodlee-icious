@@ -1,9 +1,9 @@
 require "yodlicious"
 
 describe 'the yodlee api client' do
-  let(:config) { { 'base_url' => "https://rest.developer.yodlee.com/services/srest/restserver/v1.0",
-                   'cobranded_username' => "sbCobandrewnichols",
-                   'cobranded_password' => "d02aeac7-0ead-432e-a187-f8ff8a24e0cd" } }
+  let(:config) { { base_url: "https://rest.developer.yodlee.com/services/srest/restserver/v1.0",
+                   cobranded_username: "sbCobandrewnichols",
+                   cobranded_password: "d02aeac7-0ead-432e-a187-f8ff8a24e0cd" } }
   let(:api) { Yodlicious::YodleeApi.new(config) }
 
   describe 'the yodlee apis cobranded login endpoint' do
@@ -185,8 +185,36 @@ describe 'the yodlee api client' do
     end
   end
 
-          # puts JSON.pretty_generate(subject)
+  describe 'the yodlee apis site info' , focus: true do
+    context 'Given a registered cobranded session' do
+      before { 
+        api.cobranded_login
+        # api.user_login 'sbMemandrewnichols2', 'sbMemandrewnichols2#123'
+      }
 
+      context 'When a request for site info is performed the result' do
+        subject { api.get_site_info 643 }
+
+        it { is_expected.to be_kind_of(Hash) }
+        it 'is expected to not contain an error' do
+          puts JSON.pretty_generate subject
+          expect(subject['errorOccurred']).to be_nil
+        end
+        it { is_expected.not_to be_nil }
+
+        # it 'is expected to contain a searchIdentifier' do
+        #   expect(subject['searchIdentifier']).not_to be_nil
+        # end
+
+        # it 'is expected to contain an array of transactions larger then 0' do
+        #   expect(subject['searchResult']['transactions']).to be_kind_of(Array)
+        #   expect(subject['searchResult']['transactions'].length).to be > 0
+        # end
+      end
+    end
+  end
+
+  # puts JSON.pretty_generate(subject)
 
   # context 'downloading transaction history' 
 

@@ -11,9 +11,9 @@ module Yodlicious
     end
 
     def configure config
-      @base_url = config['base_url']
-      @cobranded_username = config['cobranded_username']
-      @cobranded_password = config['cobranded_password']
+      @base_url = config[:base_url]
+      @cobranded_username = config[:cobranded_username]
+      @cobranded_password = config[:cobranded_password]
     end
 
     def base_url
@@ -66,13 +66,20 @@ module Yodlicious
     def get_item_summaries
       authenticated_execute_api '/jsonsdk/DataService/getItemSummaries', { 'bridgetAppId' => '10003200' }
     end
-    
+
     def get_item_summaries_for_site site_account_id
       authenticated_execute_api '/jsonsdk/DataService/getItemSummariesForSite', { memSiteAccId: site_account_id }
     end
 
     def get_all_site_accounts
       authenticated_execute_api '/jsonsdk/SiteAccountManagement/getAllSiteAccounts'
+    end
+
+    def get_site_info site_id
+      params = {
+        'siteFilter.siteId' => site_id
+      }
+      cobranded_session_execute_api '/jsonsdk/SiteTraversal/getSiteInfo', params
     end
 
     def execute_user_search_request options = {}
@@ -95,6 +102,14 @@ module Yodlicious
       }.merge(options)
 
       authenticated_execute_api "/jsonsdk/TransactionSearchService/executeUserSearchRequest", params
+    end
+
+    def cobranded_session_execute_api uri, params = {}
+      params = {
+        cobSessionToken: session_token,
+      }.merge(params)
+
+      execute_api uri, params
     end
 
     def authenticated_execute_api uri, params = {}
