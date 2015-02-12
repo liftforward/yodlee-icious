@@ -34,7 +34,6 @@ module Yodlicious
         cobrandPassword: cobranded_password
       }
       
-      #TODO validate response before setting
       @cobranded_auth = execute_api '/authenticate/coblogin', params
       @cobranded_auth
     end
@@ -46,52 +45,22 @@ module Yodlicious
         cobSessionToken: session_token
       }
 
-      # puts "user_login.params: #{params}"
       response = execute_api '/authenticate/login', params
 
-      #validate response before setting
+      #TODO validate response before setting
       @user_auth = response
     end
 
     def site_search search_string
-      # puts "site_search.params: #{params}"
       authenticated_execute_api "/jsonsdk/SiteTraversal/searchSite", { siteSearchString: search_string }
     end
-
 
     def add_site_account site_id, site_login_form
       params = { 
         siteId: site_id
-      }.merge(site_login_form_to_add_site_account_params(site_login_form))
+      }.merge(translator.site_login_form_to_add_site_account_params(site_login_form))
 
-      # puts "site_search.params: #{params}"
       authenticated_execute_api '/jsonsdk/SiteAccountManagement/addSiteAccount1', params
-    end
-
-
-    def site_login_form_to_add_site_account_params site_login_form
-      
-      params = { "credentialFields.enclosedType" => "com.yodlee.common.FieldInfoSingle" }
-
-      i = 0
-      site_login_form[:componentList].each { |field|
-        # puts "field=#{field}"
-        params["credentialFields[#{i}].displayName"] = field[:displayName]
-        params["credentialFields[#{i}].fieldType.typeName"] = field[:fieldType][:typeName]
-        params["credentialFields[#{i}].helpText"] = field[:helpText]
-        params["credentialFields[#{i}].maxlength"] = field[:maxlength]
-        params["credentialFields[#{i}].name"] = field[:name]
-        params["credentialFields[#{i}].size"] = field[:size]
-        params["credentialFields[#{i}].value"] = field[:value]
-        params["credentialFields[#{i}].valueIdentifier"] = field[:valueIdentifier]
-        params["credentialFields[#{i}].valueMask"] = field[:valueMask]
-        params["credentialFields[#{i}].isEditable"] = field[:isEditable]
-        params["credentialFields[#{i}].value"] = field[:value]
-
-        i += 1
-      }
-
-      params
     end
 
     def get_item_summaries_for_site site_account_id
@@ -121,22 +90,9 @@ module Yodlicious
         'transactionSearchRequest.searchFilter.transactionSplitType' => 'ALL_TRANSACTION'
       }.merge(options)
 
-      # puts "execute_user_search_request.params=#{params}"
       authenticated_execute_api "/jsonsdk/TransactionSearchService/executeUserSearchRequest", params
     end
 
-    # def register
-    #   params = {
-    #     cobSessionToken: session_token,
-    #     userCredentials: {
-    #       loginName: 
-    #       password: 
-    #       objectInstanceType: 'com.yodlee.ext.login.PasswordCredentials'
-    #     },
-
-    #   }
-    #   "#{base_url}/jsonsdk/UserRegistration/register3"
-    # end
     def authenticated_execute_api uri, params = {}
       params = {
         cobSessionToken: session_token,
@@ -148,15 +104,17 @@ module Yodlicious
 
     def execute_api uri, params = {}
       RestClient.post("#{base_url}#{uri}", params) { |response, request, result, &block|
-        # puts "execute_user_search_request.response=#{response}"
         case response.code
         when 200
-          # puts "site_search.response: #{JSON.parse(response)}"
           JSON.parse(response)
         else
           response.return!(request, result, &block)
         end
       }
+    end
+
+    def translator
+      @translator ||= ParameterTranslator.new
     end
 
     def cobranded_auth
@@ -175,8 +133,5 @@ module Yodlicious
       user_auth['userContext']['conversationCredentials']['sessionToken']
     end
 
-    # def logger
-    #   Rails.logger
-    # end
   end
 end
