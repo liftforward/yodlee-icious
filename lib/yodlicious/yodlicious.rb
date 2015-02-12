@@ -63,6 +63,10 @@ module Yodlicious
       authenticated_execute_api '/jsonsdk/SiteAccountManagement/addSiteAccount1', params
     end
 
+    def get_item_summaries
+      authenticated_execute_api '/jsonsdk/DataService/getItemSummaries', { 'bridgetAppId' => '10003200' }
+    end
+    
     def get_item_summaries_for_site site_account_id
       authenticated_execute_api '/jsonsdk/DataService/getItemSummariesForSite', { memSiteAccId: site_account_id }
     end

@@ -103,10 +103,12 @@ describe 'the yodlee api client' do
       site_account_id = site_account_info['siteAccountId']
 
       expect(site_account_id).not_to be_nil
+      # it 'user can select one or more accounts'
+
     end
   end
 
-  describe 'the yodlee apis fetching data about registered accounts endpoints' do
+  describe 'the yodlee apis fetching summary data about registered accounts endpoints' do
     context 'Given a registered user with registered accounts' do
       before { 
         api.cobranded_login
@@ -142,8 +144,17 @@ describe 'the yodlee api client' do
         end
       end
 
-      # it 'user can select one or more accounts'
-      # it 'system can fetch transaction history'
+      context 'when getItemSummaries is called the return' do
+        subject { api.get_item_summaries }
+
+        it { is_expected.not_to be_nil }
+        it { is_expected.to be_kind_of(Array) }
+
+        it 'is expected to return more than 0 sites' do
+          puts JSON.pretty_generate(subject)
+          expect(subject.length).to be > 0
+        end
+      end
     end
   end
 
@@ -174,6 +185,7 @@ describe 'the yodlee api client' do
       end
     end
   end
+
           # puts JSON.pretty_generate(subject)
 
 
