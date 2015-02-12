@@ -151,7 +151,6 @@ describe 'the yodlee api client' do
         it { is_expected.to be_kind_of(Array) }
 
         it 'is expected to return more than 0 sites' do
-          puts JSON.pretty_generate(subject)
           expect(subject.length).to be > 0
         end
       end
