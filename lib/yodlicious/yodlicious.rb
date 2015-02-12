@@ -1,10 +1,16 @@
-require 'rest_client'
+require 'rest-client'
 require 'json'
 
 module Yodlicious
   class YodleeApi
 
     def initialize config
+      if (config)
+        configure config
+      end
+    end
+
+    def configure config
       @base_url = config['base_url']
       @username = config['username']
       @password = config['password']
@@ -119,6 +125,79 @@ module Yodlicious
       }
 
       params
+    end
+
+    def get_item_summaries_for_site site_account_id
+      params = {
+        cobSessionToken: session_token,
+        userSessionToken: user_session_token,
+        memSiteAccId: site_account_id
+      }
+
+      # puts "get_item_summaries_for_site.params=#{params}"
+      RestClient.post("#{base_url}/jsonsdk/DataService/getItemSummariesForSite", params) { |response, request, result, &block|
+        # puts "get_item_summaries_for_site.response=#{response.headers}"
+        case response.code
+        when 200
+          # puts "site_search.response: #{JSON.parse(response)}"
+          JSON.parse(response)
+        else
+          response.return!(request, result, &block)
+        end
+      }
+    end
+
+    def get_all_site_accounts
+      params = {
+        cobSessionToken: session_token,
+        userSessionToken: user_session_token
+      }
+
+      # puts "get_item_summaries_for_site.params=#{params}"
+      RestClient.post("#{base_url}/jsonsdk/SiteAccountManagement/getAllSiteAccounts", params) { |response, request, result, &block|
+        # puts "get_item_summaries_for_site.response=#{response.headers}"
+        case response.code
+        when 200
+          # puts "site_search.response: #{JSON.parse(response)}"
+          JSON.parse(response)
+        else
+          response.return!(request, result, &block)
+        end
+      }
+    end
+
+    def execute_user_search_request options = {}
+      params = {
+        cobSessionToken: session_token,
+        userSessionToken: user_session_token,
+        'transactionSearchRequest.containerType' => 'All',
+        'transactionSearchRequest.lowerFetchLimit' => 1,
+        'transactionSearchRequest.higherFetchLimit' => 500,
+        'transactionSearchRequest.resultRange.startNumber' => 1,
+        'transactionSearchRequest.resultRange.endNumber' => 10,
+        'transactionSearchRequest.searchClients.clientId' => 1,
+        'transactionSearchRequest.searchClients.clientName' => 'DataSearchService',
+        'transactionSearchRequest.ignoreUserInput' => true,
+        #todo make it so that we can pass a simpler hash of arguments
+        # 'transactionSearchRequest.userInput' => nil,
+        # 'transactionSearchRequest.searchFilter.currencyCode' => nil,
+        # 'transactionSearchRequest.searchFilter.postDateRange.fromDate' => nil,
+        # 'transactionSearchRequest.searchFilter.postDateRange.toDate' => nil,
+        # 'transactionSearchRequest.searchFilter.itemAccountId.identifier' => nil,
+        'transactionSearchRequest.searchFilter.transactionSplitType' => 'ALL_TRANSACTION'
+      }.merge(options)
+
+      # puts "execute_user_search_request.params=#{params}"
+      RestClient.post("#{base_url}/jsonsdk/TransactionSearchService/executeUserSearchRequest", params) { |response, request, result, &block|
+        # puts "execute_user_search_request.response=#{response}"
+        case response.code
+        when 200
+          # puts "site_search.response: #{JSON.parse(response)}"
+          JSON.parse(response)
+        else
+          response.return!(request, result, &block)
+        end
+      }
     end
 
     # def register
