@@ -4,44 +4,39 @@ require 'json'
 module Yodlicious
   class YodleeApi
 
-    def initialize config
-      if (config)
+    def initialize config = {}
+      unless (config.empty?)
         configure config
       end
     end
 
     def configure config
       @base_url = config['base_url']
-      @username = config['username']
-      @password = config['password']
+      @cobranded_username = config['cobranded_username']
+      @cobranded_password = config['cobranded_password']
     end
 
     def base_url
       @base_url
     end
 
-    def username
-      @username
+    def cobranded_username
+      @cobranded_username
     end
 
-    def password
-      @password
+    def cobranded_password
+      @cobranded_password
     end
 
     def cobranded_login
       params = {
-        cobrandLogin: username,
-        cobrandPassword: password
+        cobrandLogin: cobranded_username,
+        cobrandPassword: cobranded_password
       }
-      RestClient.post("#{base_url}/authenticate/coblogin", params) { |response, request, result, &block|
-        case response.code
-        when 200
-          # puts "cobranded_login.response: #{JSON.parse(response)}"
-          @cobranded_auth = JSON.parse(response)
-        else
-          response.return!(request, result, &block)
-        end
-      }
+      
+      #TODO validate response before setting
+      @cobranded_auth = execute_api '/authenticate/coblogin', params
+      @cobranded_auth
     end
 
     def user_login login, pass
@@ -52,53 +47,25 @@ module Yodlicious
       }
 
       # puts "user_login.params: #{params}"
-      RestClient.post("#{base_url}/authenticate/login", params) { |response, request, result, &block|
-        case response.code
-        when 200
-          # puts "user_login.response: #{JSON.parse(response)}"
-          @user_auth = JSON.parse(response)
-        else
-          response.return!(request, result, &block)
-        end
-      }
+      response = execute_api '/authenticate/login', params
+
+      #validate response before setting
+      @user_auth = response
     end
 
     def site_search search_string
-      params = { 
-        cobSessionToken: session_token,
-        userSessionToken: user_session_token,
-        siteSearchString: search_string
-      }
       # puts "site_search.params: #{params}"
-      RestClient.post("#{base_url}/jsonsdk/SiteTraversal/searchSite", params) { |response, request, result, &block|
-        case response.code
-        when 200
-          # puts "site_search.response: #{JSON.parse(response)}"
-          JSON.parse(response)
-        else
-          response.return!(request, result, &block)
-        end
-      }
+      authenticated_execute_api "/jsonsdk/SiteTraversal/searchSite", { siteSearchString: search_string }
     end
 
 
     def add_site_account site_id, site_login_form
       params = { 
-        cobSessionToken: session_token,
-        userSessionToken: user_session_token,
         siteId: site_id
       }.merge(site_login_form_to_add_site_account_params(site_login_form))
 
       # puts "site_search.params: #{params}"
-      RestClient.post("#{base_url}/jsonsdk/SiteAccountManagement/addSiteAccount1", params) { |response, request, result, &block|
-        case response.code
-        when 200
-          # puts "site_search.response: #{JSON.parse(response)}"
-          JSON.parse(response)
-        else
-          response.return!(request, result, &block)
-        end
-      }
+      authenticated_execute_api '/jsonsdk/SiteAccountManagement/addSiteAccount1', params
     end
 
 
@@ -128,48 +95,15 @@ module Yodlicious
     end
 
     def get_item_summaries_for_site site_account_id
-      params = {
-        cobSessionToken: session_token,
-        userSessionToken: user_session_token,
-        memSiteAccId: site_account_id
-      }
-
-      # puts "get_item_summaries_for_site.params=#{params}"
-      RestClient.post("#{base_url}/jsonsdk/DataService/getItemSummariesForSite", params) { |response, request, result, &block|
-        # puts "get_item_summaries_for_site.response=#{response.headers}"
-        case response.code
-        when 200
-          # puts "site_search.response: #{JSON.parse(response)}"
-          JSON.parse(response)
-        else
-          response.return!(request, result, &block)
-        end
-      }
+      authenticated_execute_api '/jsonsdk/DataService/getItemSummariesForSite', { memSiteAccId: site_account_id }
     end
 
     def get_all_site_accounts
-      params = {
-        cobSessionToken: session_token,
-        userSessionToken: user_session_token
-      }
-
-      # puts "get_item_summaries_for_site.params=#{params}"
-      RestClient.post("#{base_url}/jsonsdk/SiteAccountManagement/getAllSiteAccounts", params) { |response, request, result, &block|
-        # puts "get_item_summaries_for_site.response=#{response.headers}"
-        case response.code
-        when 200
-          # puts "site_search.response: #{JSON.parse(response)}"
-          JSON.parse(response)
-        else
-          response.return!(request, result, &block)
-        end
-      }
+      authenticated_execute_api '/jsonsdk/SiteAccountManagement/getAllSiteAccounts'
     end
 
     def execute_user_search_request options = {}
       params = {
-        cobSessionToken: session_token,
-        userSessionToken: user_session_token,
         'transactionSearchRequest.containerType' => 'All',
         'transactionSearchRequest.lowerFetchLimit' => 1,
         'transactionSearchRequest.higherFetchLimit' => 500,
@@ -188,16 +122,7 @@ module Yodlicious
       }.merge(options)
 
       # puts "execute_user_search_request.params=#{params}"
-      RestClient.post("#{base_url}/jsonsdk/TransactionSearchService/executeUserSearchRequest", params) { |response, request, result, &block|
-        # puts "execute_user_search_request.response=#{response}"
-        case response.code
-        when 200
-          # puts "site_search.response: #{JSON.parse(response)}"
-          JSON.parse(response)
-        else
-          response.return!(request, result, &block)
-        end
-      }
+      authenticated_execute_api "/jsonsdk/TransactionSearchService/executeUserSearchRequest", params
     end
 
     # def register
@@ -212,6 +137,27 @@ module Yodlicious
     #   }
     #   "#{base_url}/jsonsdk/UserRegistration/register3"
     # end
+    def authenticated_execute_api uri, params = {}
+      params = {
+        cobSessionToken: session_token,
+        userSessionToken: user_session_token
+      }.merge(params)
+
+      execute_api uri, params
+    end
+
+    def execute_api uri, params = {}
+      RestClient.post("#{base_url}#{uri}", params) { |response, request, result, &block|
+        # puts "execute_user_search_request.response=#{response}"
+        case response.code
+        when 200
+          # puts "site_search.response: #{JSON.parse(response)}"
+          JSON.parse(response)
+        else
+          response.return!(request, result, &block)
+        end
+      }
+    end
 
     def cobranded_auth
       @cobranded_auth

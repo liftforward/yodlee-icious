@@ -2,10 +2,27 @@ require "yodlicious"
 
 describe 'the yodlee api client' do
   let(:config) { { 'base_url' => "https://rest.developer.yodlee.com/services/srest/restserver/v1.0",
-                   'username' => "sbCobandrewnichols",
-                   'password' => "d02aeac7-0ead-432e-a187-f8ff8a24e0cd" } }
+                   'cobranded_username' => "sbCobandrewnichols",
+                   'cobranded_password' => "d02aeac7-0ead-432e-a187-f8ff8a24e0cd" } }
   let(:api) { Yodlicious::YodleeApi.new(config) }
 
+  describe 'the yodlee apis cobranded login endpoint' do
+    context 'Given valid cobranded credentials and base_url' do
+      context 'When /authenticate/coblogin is called the return' do
+        subject { api.cobranded_login }
+
+        it { is_expected.to be_kind_of(Hash) }
+        it { is_expected.not_to be_empty }
+
+        it 'contains valid json response' do
+          expect(subject['cobrandConversationCredentials']).not_to be_nil
+          expect(subject['cobrandConversationCredentials']['sessionToken']).not_to be_nil
+        end
+      end
+    end
+  end
+
+  #todo reorganize this spec to use given-when-then
   context 'new user adds bank account site' do
     before { 
       api.cobranded_login
