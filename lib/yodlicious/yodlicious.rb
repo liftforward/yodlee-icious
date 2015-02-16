@@ -37,7 +37,7 @@ module Yodlicious
       proxy_opts = {}
 
       unless proxy_url == nil
-        proxy_opts[:uri] = proxy_url 
+        proxy_opts[:uri] = URI.parse(proxy_url) 
         proxy_opts[:socks] = use_socks?
       end
 
@@ -161,7 +161,7 @@ module Yodlicious
 
       ssl_opts = {verify: false}
 
-      connection = Faraday.new(url: @base_url,
+      connection = Faraday.new(url: base_url,
                                ssl: ssl_opts,
                                request: { proxy: proxy_opts }) #do |c|
         # c.headers[:user_agent] = "Just Some Engineer"
