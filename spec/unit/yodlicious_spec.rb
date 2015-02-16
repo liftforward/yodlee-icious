@@ -1,6 +1,6 @@
 require "yodlicious"
 
-describe Yodlicious::YodleeApi, focus: true do
+describe Yodlicious::YodleeApi do
 
   context 'When a new YodleeApi instance is not configured' do
     it 'no base_url set' do
