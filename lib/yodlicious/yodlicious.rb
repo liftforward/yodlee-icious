@@ -1,5 +1,5 @@
-require 'rest-client'
 require 'json'
+
 
 module Yodlicious
   class YodleeApi
@@ -14,6 +14,7 @@ module Yodlicious
       @base_url = config[:base_url]
       @cobranded_username = config[:cobranded_username]
       @cobranded_password = config[:cobranded_password]
+      @proxy_url = config[:proxy_url]
     end
 
     def base_url
@@ -28,12 +29,31 @@ module Yodlicious
       @cobranded_password
     end
 
+    def proxy_url
+      @proxy_url
+    end
+
+    def proxy_opts
+      proxy_opts = {}
+
+      unless proxy_url == nil
+        proxy_opts[:uri] = proxy_url 
+        proxy_opts[:socks] = use_socks?
+      end
+
+      proxy_opts
+    end
+
+    def use_socks?
+      return proxy_url != nil && proxy_url.start_with?('socks') 
+    end
+
     def cobranded_login
       params = {
         cobrandLogin: cobranded_username,
         cobrandPassword: cobranded_password
       }
-      
+
       @cobranded_auth = execute_api '/authenticate/coblogin', params
       @cobranded_auth
     end
@@ -53,6 +73,10 @@ module Yodlicious
 
     def site_search search_string
       authenticated_execute_api "/jsonsdk/SiteTraversal/searchSite", { siteSearchString: search_string }
+    end
+
+    def search_content_services search_string
+      authenticated_execute_api "/jsonsdk/Search/searchContentServices", { keywords: search_string }
     end
 
     def add_site_account site_id, site_login_form
@@ -77,7 +101,8 @@ module Yodlicious
 
     def get_site_info site_id
       params = {
-        'siteFilter.siteId' => site_id
+        'siteFilter.siteId' => site_id,
+        'siteFilter.reqSpecifier' => 16
       }
       cobranded_session_execute_api '/jsonsdk/SiteTraversal/getSiteInfo', params
     end
@@ -121,15 +146,37 @@ module Yodlicious
       execute_api uri, params
     end
 
+
+
     def execute_api uri, params = {}
-      RestClient.post("#{base_url}#{uri}", params) { |response, request, result, &block|
-        case response.code
-        when 200
-          JSON.parse(response)
-        else
-          response.return!(request, result, &block)
-        end
-      }
+      # puts "calling #{uri} with #{params}"
+
+        # uri:  URI.parse(proxy_url),
+        # user: 'socksuser',
+        # password: 'sockspassword',
+        # socks: true  # this was because Faraday was barfing when using socks scheme 
+                       # (e.g. 'socks://123.45.67.89:1080')
+      # }
+
+
+      ssl_opts = {verify: false}
+
+      connection = Faraday.new(url: @base_url,
+                               ssl: ssl_opts,
+                               request: { proxy: proxy_opts }) #do |c|
+        # c.headers[:user_agent] = "Just Some Engineer"
+        # c.adapter :net_http
+        # c.response :logger 
+      # end
+
+      response = connection.post("#{base_url}#{uri}", params)
+      # puts "response=#{response.status} body=#{response.body} headers=#{response.headers}"
+
+      case response.status
+      when 200
+        JSON.parse(response.body)
+      else
+      end
     end
 
     def translator

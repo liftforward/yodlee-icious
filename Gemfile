@@ -4,4 +4,6 @@ source 'https://rubygems.org'
 gemspec
 
 gem 'rspec-its'
-gem 'rest-client'
+gem 'faraday', '0.9.0'
+gem 'socksify', '1.5.0'
+
