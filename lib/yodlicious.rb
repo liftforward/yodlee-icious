@@ -7,8 +7,6 @@ require File.dirname(__FILE__) + "/yodlicious/version"
 require File.dirname(__FILE__) + "/yodlicious/parameter_translator"
 require File.dirname(__FILE__) + "/yodlicious/yodlicious"
 
-Socksify::debug = true
-
 class Faraday::Adapter::NetHttp
   def net_http_connection(env)
     if proxy = env[:request][:proxy]
