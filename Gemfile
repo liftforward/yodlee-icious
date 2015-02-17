@@ -4,6 +4,7 @@ source 'https://rubygems.org'
 gemspec
 
 gem 'rspec-its'
-gem 'faraday', '0.9.0'
-gem 'socksify', '1.5.0'
+gem 'faraday', '0.9.1'
+gem 'faraday_middleware', '~>0.9.1'
+gem 'socksify', '~>1.6.0'
 

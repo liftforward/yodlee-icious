@@ -22,7 +22,11 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rake", "~> 10.0"
   spec.add_development_dependency "rspec", "~> 3.2"
   
-  spec.add_runtime_dependency "rest-client", "~> 1.7.2", '>= 1.7.0'
+  spec.add_runtime_dependency "faraday", '~> 0.9.1', '>= 0.9.1'
+  spec.add_runtime_dependency "socksify", '~> 1.6.0', '>= 1.6.0'
+
+# gem 'faraday', '0.9.0'
+# gem 'socksify', '1.5.0'
 
   spec.required_ruby_version = '>= 1.9.3'
 end
