@@ -1,6 +1,6 @@
 require "yodlicious"
 
-describe 'the yodlee api client integration test', integration: true do
+describe 'the yodlee api client integration tests', integration: true do
   let(:config) { 
     { 
       base_url: ENV['YODLEE_BASE_URL'],
