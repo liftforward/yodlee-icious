@@ -60,7 +60,7 @@ describe Yodlicious::YodleeApi do
     it 'the proxy_opts are created' do
       proxy_opts = {
         socks: true,
-        uri: config[:proxy_url]
+        uri: URI.parse(config[:proxy_url])
       }
       expect(subject.proxy_opts).to eq(proxy_opts)
     end
