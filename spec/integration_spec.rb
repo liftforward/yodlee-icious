@@ -1,9 +1,15 @@
 require "yodlicious"
 
-describe 'the yodlee api client' do
-  let(:config) { { base_url: "https://rest.developer.yodlee.com/services/srest/restserver/v1.0",
-                   cobranded_username: "sbCobandrewnichols",
-                   cobranded_password: "d02aeac7-0ead-432e-a187-f8ff8a24e0cd" } }
+describe 'the yodlee api client integration test', integration: true do
+  let(:config) { 
+    { 
+      base_url: ENV['YODLEE_BASE_URL'],
+      cobranded_username: ENV['YODLEE_COBRANDED_USERNAME'],
+      cobranded_password: ENV['YODLEE_COBRANDED_PASSWORD'],
+      proxy_url: ENV['YODLICIOUS_PROXY_URL']
+    }
+  }
+
   let(:api) { Yodlicious::YodleeApi.new(config) }
 
   describe 'the yodlee apis cobranded login endpoint' do
@@ -22,89 +28,153 @@ describe 'the yodlee api client' do
     end
   end
 
-  #todo reorganize this spec to use given-when-then
-  context 'new user adds bank account site' do
-    before { 
-      api.cobranded_login
-      api.user_login 'sbMemandrewnichols3', 'sbMemandrewnichols3#123'
-    }
-
-    it 'captures a new cobranded auth token json' do
-      expect(api.cobranded_auth).not_to be_nil
-    end
-
-    it 'captures a session token' do
-      expect(api.session_token).not_to be_nil
-    end
-
-    it 'captures a new user auth token json' do
-      expect(api.user_auth).not_to be_nil
-    end
-
-    it 'captures a user session token' do
-      expect(api.user_session_token).not_to be_nil
-    end
-
-    it 'returns an array of sites when search is performed' do
-      sites = api.site_search 'chase'
-      expect(sites).to be_kind_of(Array)
-      expect(sites).not_to be_empty
-      expect(sites[0]['baseUrl']).not_to be_empty
-      expect(sites[0]['loginForms']).not_to be_empty
-    end
-
-    it 'returns a SiteAccountInfo object' do
-      chase_login_form = {
-        conjunctionOp: {  
-          conjuctionOp: 1
-        },
-        componentList: [  
-          {  
-            valueIdentifier: 'LOGIN',
-            valueMask: 'LOGIN_FIELD',
-            fieldType: {  
-              typeName: 'IF_LOGIN'
-            },
-            size: 20,
-            maxlength: 32,
-            name: 'LOGIN',
-            displayName: 'User ID',
-            isEditable: true,
-            isOptional: false,
-            isEscaped: false,
-            helpText: 4710,
-            isOptionalMFA: false,
-            isMFA: false,
-            value: 'kanyewest'
-          },
-          {  
-            valueIdentifier: 'PASSWORD',
-            valueMask: 'LOGIN_FIELD',
-            fieldType: {  
-              typeName: 'IF_PASSWORD'
-            },
-            size: 20,
-            maxlength: 40,
-            name: 'PASSWORD',
-            displayName: 'Password',
-            isEditable: true,
-            isOptional: false,
-            isEscaped: false,
-            helpText: 11976,
-            isOptionalMFA: false,
-            isMFA: false,
-            value: 'iLoveTheGrammies'
+  describe 'the yodlee apis user login endpoint' do
+    context 'Given valid cobranded credentials and base_url' do
+      context 'Given a new user who does not exist within the cobranded account' do
+        describe 'When /authenticate/coblogin is called the return' do
+          subject { 
+            api.cobranded_login
+            api.user_login 'testuser', 'testpassword'
           }
-        ],
-        defaultHelpText: 324
+
+          it { is_expected.to be_kind_of(Hash) }
+          it { is_expected.not_to be_empty }
+
+          it 'returns an error response' do
+            expect(subject).to eq({"Error"=>[{"errorDetail"=>"Invalid User Credentials"}]})
+          end
+        end
+      end
+
+      context 'Given a user who does exist within the cobranded account' do
+        describe 'When /authenticate/coblogin is called the return' do
+          subject { 
+            api.cobranded_login
+            api.user_login 'testuser', 'testpassword'
+          }
+
+          it { is_expected.to be_kind_of(Hash) }
+          it { is_expected.not_to be_empty }
+
+          it 'returns an error response' do
+            expect(subject).to eq({"Error"=>[{"errorDetail"=>"Invalid User Credentials"}]})
+          end
+        end
+      end
+    end
+  end
+
+  describe 'the yodlee apis register user endpoint' do
+    context 'Given a valid cobranded credentials and base_url' do
+      context 'Given a new user who does not exist within the cobranded account' do
+        context 'When /jsonsdk/UserRegistration/register3 endpoint is called' do
+          describe 'the response' do
+            subject {
+              api.cobranded_login
+              api.user_login 'testuser', 'testpassword143'
+              api.unregister_user
+              api.register_user 'testuser', 'testpassword143', 'test@test.com'
+            }
+
+            it { is_expected.to be_kind_of(Hash) }
+            it { is_expected.not_to be_empty }
+
+            it 'is expected to not return an error' do
+              expect(subject['errorOccurred']).to be_nil
+            end
+
+            it 'is expected to contain a new sessionToken' do
+              #{"userContext":{"conversationCredentials":{"sessionToken":"12162013_1:ca362b46803f7ff4ea73e413a0341b6cdf895f51831d01856bfd4daaa5f816810b36252569cd7b4fd8e115b00c674e7162d01a008802c10aec3af48096e74005"},"valid":true,"isPasswordExpired":false,"cobrandId":15910008380,"channelId":-1,"locale":"en_US","tncVersion":2,"applicationId":"270772870CDC1786FFEDECFDA1FDBC00","cobrandConversationCredentials":{"sessionToken":"12162013_1:55a575777b5509749442b93651ca1400936d3562e30f82fbfb561f29abab7e129086259e1ac30d0247f5fbc25aed9752fb9bd287e7ccedbb65dfc8ec98841cc6"},"preferenceInfo":{"currencyCode":"USD","timeZone":"PST","dateFormat":"MM/dd/yyyy","currencyNotationType":{"currencyNotationType":"SYMBOL"},"numberFormat":{"decimalSeparator":".","groupingSeparator":",","groupPattern":"###,##0.##"}}},"lastLoginTime":1424115740,"loginCount":0,"passwordRecovered":false,"emailAddress":"test@test.com","loginName":"testuser","userId":19843605,"isConfirmed":false} headers={"x-powered-by"=>"Unknown", "set-cookie"=>"JSESSIONID=A3099AF04A71E6237973B2AAC7B21F8F; Path=/yodsoap; Secure", "content-type"=>"application/json", "vary"=>"Accept-Encoding", "date"=>"Mon, 16 Feb 2015 19:42:20 GMT", "connection"=>"close", "server"=>"Unknown"}
+              expect(subject['userContext']['conversationCredentials']['sessionToken']).to be_kind_of(String)
+              expect(subject['userContext']['conversationCredentials']['sessionToken'].length).to be > 0
+
+              expect(api.user_session_token).not_to be_nil
+            end
+
+            after {
+              api.unregister_user
+            }
+          end
+        end
+      end
+    end
+  end
+
+  #todo reorganize this spec to use given-when-then
+  describe 'Yodilicious add_site_account_and_wait method' do
+    context 'Given a user who has registered and does not have any accounts' do
+      before { 
+        api.cobranded_login
+        # api.user_login 'testuser', 'testpassword143'
+        # api.unregister_user
+        # api.logout_user
+        api.register_user "testuser#{rand(100..999)}", 'testpassword143', 'test@test.com'
       }
 
-      site_account_info = api.add_site_account(643, chase_login_form)
-      site_account_id = site_account_info['siteAccountId']
+      after {
+        begin
+          api.unregister_user
+        rescue
+        end
+      }
 
-      expect(site_account_id).not_to be_nil
-      # it 'user can select one or more accounts'
+      let(:chase_login_form) {
+        {
+          conjunctionOp: {  
+            conjuctionOp: 1
+          },
+          componentList: [  
+            {  
+              valueIdentifier: 'LOGIN',
+              valueMask: 'LOGIN_FIELD',
+              fieldType: {  
+                typeName: 'IF_LOGIN'
+              },
+              size: 20,
+              maxlength: 32,
+              name: 'LOGIN',
+              displayName: 'User ID',
+              isEditable: true,
+              isOptional: false,
+              isEscaped: false,
+              helpText: 4710,
+              isOptionalMFA: false,
+              isMFA: false,
+              value: 'kanyewest'
+            },
+            {  
+              valueIdentifier: 'PASSWORD',
+              valueMask: 'LOGIN_FIELD',
+              fieldType: {  
+                typeName: 'IF_PASSWORD'
+              },
+              size: 20,
+              maxlength: 40,
+              name: 'PASSWORD',
+              displayName: 'Password',
+              isEditable: true,
+              isOptional: false,
+              isEscaped: false,
+              helpText: 11976,
+              isOptionalMFA: false,
+              isMFA: false,
+              value: 'ILoveTheGrammys'
+            }
+          ],
+          defaultHelpText: 324
+        }
+      }
 
+      context 'When a invalid username and password for an account is added' do
+        subject { api.add_site_account_and_wait(643, chase_login_form) }
+
+        it 'is expected to respond with siteRefreshStatus=LOGIN_FAILURE and refreshMode=NORMAL a siteAccountId' ,focus: true do
+          expect(subject['siteRefreshInfo']['siteRefreshStatus']['siteRefreshStatus']).to eq('LOGIN_FAILURE')
+          expect(subject['siteRefreshInfo']['siteRefreshMode']['refreshMode']).to eq('NORMAL')
+          expect(subject['siteAccountId']).not_to be_nil
+          # puts JSON.pretty_generate(subject)
+        end
+      end
     end
   end
 
@@ -185,7 +255,7 @@ describe 'the yodlee api client' do
     end
   end
 
-  describe 'the yodlee apis site info' , focus: true do
+  describe 'the yodlee apis site info' do
     context 'Given a registered cobranded session' do
       before { 
         api.cobranded_login
@@ -202,9 +272,11 @@ describe 'the yodlee api client' do
         end
         it { is_expected.not_to be_nil }
 
-        # it 'is expected to contain a searchIdentifier' do
-        #   expect(subject['searchIdentifier']).not_to be_nil
-        # end
+        it 'is expected to contain login form details' do
+          expect(subject['loginForms']).not_to be_nil
+          expect(subject['loginForms']).to be_kind_of(Array)
+          expect(subject['loginForms'].length).to be > 0
+        end
 
         # it 'is expected to contain an array of transactions larger then 0' do
         #   expect(subject['searchResult']['transactions']).to be_kind_of(Array)
@@ -218,7 +290,7 @@ describe 'the yodlee api client' do
 
   # context 'downloading transaction history' 
 
-  # context 'fetching a list of content services', focus: true do
+  # context 'fetching a list of content services' do
   #   let (:api) { Yodlee::Base.new }
   #   before { api.login }
 
@@ -238,5 +310,55 @@ describe 'the yodlee api client' do
   # context 'failing when running a search for a site' do
   #   it 'return error json'
   # end
+
+
+          # { 
+          #   "siteAccountId"=>10921402, 
+          #   "isCustom"=>false, 
+          #   "credentialsChangedTime"=>1424120024, 
+          #   "siteRefreshInfo"=>{
+          #     "siteRefreshStatus"=>{
+          #       "siteRefreshStatusId"=>1, 
+          #       "siteRefreshStatus"=>"REFRESH_TRIGGERED"
+          #       }, 
+          #     "siteRefreshMode"=>{
+          #       "refreshModeId"=>2, 
+          #       "refreshMode"=>"NORMAL"
+          #     }, 
+          #     "updateInitTime"=>1424120024, 
+          #     "nextUpdate"=>1424120924, 
+          #     "code"=>801, 
+          #     "suggestedFlow"=>{
+          #       "suggestedFlowId"=>2, 
+          #       "suggestedFlow"=>"REFRESH"
+          #     }, 
+          #     "noOfRetry"=>0
+          #   }, 
+          #   "siteInfo"=>{
+          #     "popularity"=>0, 
+          #     "siteId"=>643, 
+          #     "orgId"=>520, 
+          #     "defaultDisplayName"=>"Chase", 
+          #     "defaultOrgDisplayName"=>"Chase Manhattan Bank", 
+          #     "enabledContainers"=>[
+          #       {"containerName"=>"bank", "assetType"=>1}, 
+          #       {"containerName"=>"bill_payment", "assetType"=>0}, 
+          #       {"containerName"=>"credits", "assetType"=>2}, 
+          #       {"containerName"=>"stocks", "assetType"=>1}, 
+          #       {"containerName"=>"loans", "assetType"=>2}, 
+          #       {"containerName"=>"mortgage", "assetType"=>2}, 
+          #       {"containerName"=>"miles", "assetType"=>0}
+          #     ], 
+          #     "baseUrl"=>"http://www.chase.com/", 
+          #     "loginForms"=>[], 
+          #     "isHeld"=>false, 
+          #     "isCustom"=>false, 
+          #     "siteSearchVisibility"=>true, 
+          #     "isAlreadyAddedByUser"=>true, 
+          #     "isOauthEnabled"=>false
+          #   }, 
+          #   "created"=>"2015-02-16T12:53:44-0800", 
+          #   "retryCount"=>0
+          # }
 
 end
