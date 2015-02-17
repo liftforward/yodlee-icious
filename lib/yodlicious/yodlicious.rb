@@ -71,6 +71,28 @@ module Yodlicious
       @user_auth = response
     end
 
+    def logout_user
+      authenticated_execute_api '/jsonsdk/Login/logout'
+    end
+
+    def register_user username, password, emailAddress, options = {}
+      params = {
+        'userCredentials.loginName' => username,
+        'userCredentials.password' => password,
+        'userCredentials.objectInstanceType' => 'com.yodlee.ext.login.PasswordCredentials',
+        'userProfile.emailAddress' => emailAddress
+        #todo add in user preferences
+      }.merge(options)
+
+      response = cobranded_session_execute_api "/jsonsdk/UserRegistration/register3", params
+
+      @user_auth = response
+    end
+
+    def unregister_user
+      authenticated_execute_api '/jsonsdk/UserRegistration/unregister'
+    end
+
     def site_search search_string
       authenticated_execute_api "/jsonsdk/SiteTraversal/searchSite", { siteSearchString: search_string }
     end
@@ -85,6 +107,33 @@ module Yodlicious
       }.merge(translator.site_login_form_to_add_site_account_params(site_login_form))
 
       authenticated_execute_api '/jsonsdk/SiteAccountManagement/addSiteAccount1', params
+    end
+
+    def get_site_refresh_info site_account_id
+      authenticated_execute_api '/jsonsdk/Refresh/getSiteRefreshInfo', { memSiteAccId: site_account_id }
+    end
+
+    def add_site_account_and_wait site_id, site_login_form, refresh_interval = 0.5, refresh_trys = 5
+      added_site_account = add_site_account(site_id, site_login_form)
+
+      #TODO validate response with assert
+      if added_site_account['siteRefreshInfo']['siteRefreshStatus']['siteRefreshStatus'] == 'REFRESH_TRIGGERED' &&
+         added_site_account['siteRefreshInfo']['siteRefreshMode']['refreshMode'] == 'NORMAL'
+
+        site_account_id = added_site_account['siteAccountId']
+        trys = 1
+        begin
+          debug_trace "try #{trys} to get refresh_info for #{site_id}"
+          trys += 1
+          sleep(refresh_interval)
+          refresh_info = get_site_refresh_info(site_account_id)
+        end until refresh_info['siteRefreshStatus']['siteRefreshStatus'] != 'REFRESH_TRIGGERED' || trys > refresh_trys
+
+        added_site_account['siteRefreshInfo'] = refresh_info
+        added_site_account
+      end
+
+
     end
 
     def get_item_summaries
@@ -146,28 +195,10 @@ module Yodlicious
       execute_api uri, params
     end
 
-
-
     def execute_api uri, params = {}
       # puts "calling #{uri} with #{params}"
-
-        # uri:  URI.parse(proxy_url),
-        # user: 'socksuser',
-        # password: 'sockspassword',
-        # socks: true  # this was because Faraday was barfing when using socks scheme 
-                       # (e.g. 'socks://123.45.67.89:1080')
-      # }
-
-
-      ssl_opts = {verify: false}
-
-      connection = Faraday.new(url: base_url,
-                               ssl: ssl_opts,
-                               request: { proxy: proxy_opts }) #do |c|
-        # c.headers[:user_agent] = "Just Some Engineer"
-        # c.adapter :net_http
-        # c.response :logger 
-      # end
+      ssl_opts = { verify: false }
+      connection = Faraday.new(url: base_url, ssl: ssl_opts, request: { proxy: proxy_opts })
 
       response = connection.post("#{base_url}#{uri}", params)
       # puts "response=#{response.status} body=#{response.body} headers=#{response.headers}"
@@ -197,6 +228,10 @@ module Yodlicious
 
     def user_session_token
       user_auth['userContext']['conversationCredentials']['sessionToken']
+    end
+
+    def debug_trace msg
+      puts msg
     end
 
   end
