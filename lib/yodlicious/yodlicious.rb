@@ -123,7 +123,7 @@ module Yodlicious
         site_account_id = added_site_account['siteAccountId']
         trys = 1
         begin
-          debug_trace "try #{trys} to get refresh_info for #{site_id}"
+          # debug_trace "try #{trys} to get refresh_info for #{site_id}"
           trys += 1
           sleep(refresh_interval)
           refresh_info = get_site_refresh_info(site_account_id)
