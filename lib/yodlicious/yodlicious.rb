@@ -93,6 +93,22 @@ module Yodlicious
       authenticated_execute_api '/jsonsdk/UserRegistration/unregister'
     end
 
+    def login_or_register_user  username, password, email
+      debug_trace "attempting to login #{username}"
+      login_response = user_login(username, password)
+      # debug_trace "login_response=#{login_response}"
+
+      #TODO look into what other errors could occur here
+      if login_response.has_key?('Error') && login_response['Error'][0]['errorDetail'] == "Invalid User Credentials"
+        debug_trace 'invalid credentials for #{username} attempting to register'
+        login_response = register_user username, password, email
+      end
+
+      #TODO handle registration failure
+
+      login_response 
+    end
+
     def site_search search_string
       authenticated_execute_api "/jsonsdk/SiteTraversal/searchSite", { siteSearchString: search_string }
     end
@@ -231,7 +247,7 @@ module Yodlicious
     end
 
     def debug_trace msg
-      puts msg
+      # puts msg
     end
 
   end
