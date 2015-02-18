@@ -90,6 +90,14 @@ describe 'the yodlee api client integration tests', integration: true do
     end
   end
 
+  describe 'the yodlicious login_or_register_user method' do
+
+    it 'should login an existing user'
+    it 'should register a new user'
+    it 'should not register an existing user twice'
+
+  end
+
   describe 'the yodlee apis site info endpoint' do
     context 'Given a valid cobranded credentials and base_url' do
       before { 
@@ -131,8 +139,8 @@ describe 'the yodlee api client integration tests', integration: true do
 
       context 'When a invalid username and password for an account is added' do
         before {
-          dag_login_form[:componentList][0][:value] = 'invalid_username'
-          dag_login_form[:componentList][1][:value] = 'invalid_password'
+          dag_login_form['componentList'][0]['value'] = 'invalid_username'
+          dag_login_form['componentList'][1]['value'] = 'invalid_password'
         }
         subject { api.add_site_account_and_wait(16441, dag_login_form, 1, 10) }
 
@@ -146,8 +154,8 @@ describe 'the yodlee api client integration tests', integration: true do
 
       context 'When a valid username and password for an account is added' do
         before {
-          dag_login_form[:componentList][0][:value] = 'yodlicious.site16441.1'
-          dag_login_form[:componentList][1][:value] = 'site16441.1'
+          dag_login_form['componentList'][0]['value'] = 'yodlicious.site16441.1'
+          dag_login_form['componentList'][1]['value'] = 'site16441.1'
         }
         subject { api.add_site_account_and_wait(16441, dag_login_form, 1, 10) }
 
@@ -419,6 +427,6 @@ describe 'the yodlee api client integration tests', integration: true do
         }
       ],
       "defaultHelpText": "16103"
-    }', symbolize_names: true)
+    }')
   }
 end
