@@ -5,48 +5,44 @@ describe 'parameter translator' do
   context 'converting login params json to add site params' do
     let (:login_form) {
       {
-        conjunctionOp: {  
-          conjuctionOp: 1
-        },
-        componentList: [  
+        'componentList' => [  
           {  
-            valueIdentifier: 'LOGIN',
-            valueMask: 'LOGIN_FIELD',
-            fieldType: {  
-              typeName: 'IF_LOGIN'
+            'valueIdentifier' => 'LOGIN',
+            'valueMask' => 'LOGIN_FIELD',
+            'fieldType' => {  
+              'typeName' => 'IF_LOGIN'
             },
-            size: 20,
-            maxlength: 32,
-            name: 'LOGIN',
-            displayName: 'User ID',
-            isEditable: true,
-            isOptional: false,
-            isEscaped: false,
-            helpText: 4710,
-            isOptionalMFA: false,
-            isMFA: false,
-            value: 'kanyewest'
+            'size' => 20,
+            'maxlength' => 32,
+            'name' => 'LOGIN',
+            'displayName' => 'User ID',
+            'isEditable' => true,
+            'isOptional' => false,
+            'isEscaped' => false,
+            'helpText' => 4710,
+            'isOptionalMFA' => false,
+            'isMFA' => false,
+            'value' => 'kanyewest'
           },
           {  
-            valueIdentifier: 'PASSWORD',
-            valueMask: 'LOGIN_FIELD',
-            fieldType: {  
-              typeName: 'IF_PASSWORD'
+            'valueIdentifier' => 'PASSWORD',
+            'valueMask' => 'LOGIN_FIELD',
+            'fieldType' => {  
+              'typeName' => 'IF_PASSWORD'
             },
-            size: 20,
-            maxlength: 40,
-            name: 'PASSWORD',
-            displayName: 'Password',
-            isEditable: true,
-            isOptional: false,
-            isEscaped: false,
-            helpText: 11976,
-            isOptionalMFA: false,
-            isMFA: false,
-            value: 'iLoveTheGrammys'
+            'size' => 20,
+            'maxlength' => 40,
+            'name' => 'PASSWORD',
+            'displayName' => 'Password',
+            'isEditable' => true,
+            'isOptional' => false,
+            'isEscaped' => false,
+            'helpText' => 11976,
+            'isOptionalMFA' => false,
+            'isMFA' => false,
+            'value' => 'iLoveTheGrammys'
           }
-        ],
-        defaultHelpText: 324
+        ]
       }
     }
 
