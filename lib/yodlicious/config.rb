@@ -1,18 +1,11 @@
 module Yodlicious
   class Config
-
-    def self.base_url= url
-      @@base_url= url
+    class << self
+      attr_accessor :base_url, :cobranded_username, :cobranded_password, :proxy_url
     end
-
-    def self.cobranded_username username
-      @@cobranded_username = username
-    end
-
-    def self.cobranded_password password
-      @@cobranded_password = password
-    end
-
-    #todo logger configuration
+    
+    # def initialize
+    #   # @base_url = nil
+    # end
   end
 end
