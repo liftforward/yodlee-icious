@@ -130,6 +130,9 @@ describe 'the yodlee api client integration tests', integration: true do
         api.register_user "testuser#{rand(100..999)}", 'testpassword143', 'test@test.com'
       }
 
+      let(:seconds_between_retry) { 3 }
+      let(:retry_count) { 10 }
+
       after {
         begin
           api.unregister_user
@@ -142,7 +145,7 @@ describe 'the yodlee api client integration tests', integration: true do
           dag_login_form['componentList'][0]['value'] = 'invalid_username'
           dag_login_form['componentList'][1]['value'] = 'invalid_password'
         }
-        subject { api.add_site_account_and_wait(16441, dag_login_form, 1, 10) }
+        subject { api.add_site_account_and_wait(16441, dag_login_form, seconds_between_retry, retry_count) }
 
         it 'is expected to respond with siteRefreshStatus=LOGIN_FAILURE and refreshMode=NORMAL a siteAccountId' do
           expect(subject['siteRefreshInfo']['siteRefreshStatus']['siteRefreshStatus']).to eq('LOGIN_FAILURE')
@@ -157,11 +160,10 @@ describe 'the yodlee api client integration tests', integration: true do
           dag_login_form['componentList'][0]['value'] = 'yodlicious.site16441.1'
           dag_login_form['componentList'][1]['value'] = 'site16441.1'
         }
-        subject { api.add_site_account_and_wait(16441, dag_login_form, 1, 10) }
+        subject { api.add_site_account_and_wait(16441, dag_login_form, seconds_between_retry, retry_count) }
 
         it 'is expected to respond with siteRefreshStatus=LOGIN_SUCCESS and refreshMode=NORMAL a siteAccountId' do
           # puts JSON.pretty_generate(subject)
-
           expect(subject['siteRefreshInfo']['siteRefreshStatus']['siteRefreshStatus']).to eq('LOGIN_SUCCESS')
           expect(subject['siteRefreshInfo']['siteRefreshMode']['refreshMode']).to eq('NORMAL')
           expect(subject['siteAccountId']).not_to be_nil

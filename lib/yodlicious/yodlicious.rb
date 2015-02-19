@@ -9,10 +9,21 @@ module Yodlicious
     end
 
     def configure config = {}
+      debug_trace "configuring YodleeApi with config=#{config}"
+
+      validate config
       @base_url = config[:base_url] || Yodlicious::Config.base_url
       @cobranded_username = config[:cobranded_username] || Yodlicious::Config.cobranded_username
       @cobranded_password = config[:cobranded_password] || Yodlicious::Config.cobranded_password
       @proxy_url = config[:proxy_url] || Yodlicious::Config.proxy_url
+    end
+
+    def validate config
+      [:proxy_url, :base_url, :cobranded_username, :cobranded_password].each { |key|
+        if config.has_key?(key) && config[key].nil?
+          raise "Invalid config provided to YodleeApi. Values may not be nil or blank."
+        end
+      }
     end
 
     def base_url
