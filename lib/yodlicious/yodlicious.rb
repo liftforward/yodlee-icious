@@ -5,16 +5,14 @@ module Yodlicious
   class YodleeApi
 
     def initialize config = {}
-      unless (config.empty?)
-        configure config
-      end
+      configure config
     end
 
-    def configure config
-      @base_url = config[:base_url]
-      @cobranded_username = config[:cobranded_username]
-      @cobranded_password = config[:cobranded_password]
-      @proxy_url = config[:proxy_url]
+    def configure config = {}
+      @base_url = config[:base_url] || Yodlicious::Config.base_url
+      @cobranded_username = config[:cobranded_username] || Yodlicious::Config.cobranded_username
+      @cobranded_password = config[:cobranded_password] || Yodlicious::Config.cobranded_password
+      @proxy_url = config[:proxy_url] || Yodlicious::Config.proxy_url
     end
 
     def base_url
