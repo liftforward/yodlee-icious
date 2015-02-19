@@ -1,4 +1,5 @@
 require 'rubygems'
+require 'logger'
 require 'faraday'
 require 'socksify'
 require 'socksify/http'

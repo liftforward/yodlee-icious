@@ -3,43 +3,29 @@ require 'json'
 
 module Yodlicious
   class YodleeApi
+    attr_reader :base_url, :cobranded_username, :cobranded_password, :proxy_url, :logger
 
     def initialize config = {}
       configure config
     end
 
     def configure config = {}
-      debug_trace "configuring YodleeApi with config=#{config}"
-
       validate config
       @base_url = config[:base_url] || Yodlicious::Config.base_url
       @cobranded_username = config[:cobranded_username] || Yodlicious::Config.cobranded_username
       @cobranded_password = config[:cobranded_password] || Yodlicious::Config.cobranded_password
       @proxy_url = config[:proxy_url] || Yodlicious::Config.proxy_url
+      @logger = config[:logger] || Yodlicious::Config.logger
+      
+      info_log "YodleeApi configured with base_url=#{base_url} cobranded_username=#{cobranded_username} proxy_url=#{proxy_url} logger=#{logger}"
     end
 
     def validate config
-      [:proxy_url, :base_url, :cobranded_username, :cobranded_password].each { |key|
+      [:proxy_url, :base_url, :cobranded_username, :cobranded_password, :logger].each { |key|
         if config.has_key?(key) && config[key].nil?
           raise "Invalid config provided to YodleeApi. Values may not be nil or blank."
         end
       }
-    end
-
-    def base_url
-      @base_url
-    end
-
-    def cobranded_username
-      @cobranded_username
-    end
-
-    def cobranded_password
-      @cobranded_password
-    end
-
-    def proxy_url
-      @proxy_url
     end
 
     def proxy_opts
@@ -103,13 +89,12 @@ module Yodlicious
     end
 
     def login_or_register_user  username, password, email
-      debug_trace "attempting to login #{username}"
+      info_log "attempting to login #{username}"
       login_response = user_login(username, password)
-      # debug_trace "login_response=#{login_response}"
 
       #TODO look into what other errors could occur here
       if login_response.has_key?('Error') && login_response['Error'][0]['errorDetail'] == "Invalid User Credentials"
-        debug_trace 'invalid credentials for #{username} attempting to register'
+        info_log "invalid credentials for #{username} attempting to register"
         login_response = register_user username, password, email
       end
 
@@ -148,7 +133,7 @@ module Yodlicious
         site_account_id = added_site_account['siteAccountId']
         trys = 1
         begin
-          # debug_trace "try #{trys} to get refresh_info for #{site_id}"
+          info_log "try #{trys} to get refresh_info for #{site_id}"
           trys += 1
           sleep(refresh_interval)
           refresh_info = get_site_refresh_info(site_account_id)
@@ -221,12 +206,12 @@ module Yodlicious
     end
 
     def execute_api uri, params = {}
-      # puts "calling #{uri} with #{params}"
+      debug_log "calling #{uri} with #{params}"
       ssl_opts = { verify: false }
       connection = Faraday.new(url: base_url, ssl: ssl_opts, request: { proxy: proxy_opts })
 
       response = connection.post("#{base_url}#{uri}", params)
-      # puts "response=#{response.status} body=#{response.body} headers=#{response.headers}"
+      debug_log "response=#{response.status} body=#{response.body} headers=#{response.headers}"
 
       case response.status
       when 200
@@ -255,8 +240,12 @@ module Yodlicious
       user_auth['userContext']['conversationCredentials']['sessionToken']
     end
 
-    def debug_trace msg
-      # puts msg
+    def debug_log msg
+      logger.debug msg
+    end
+
+    def info_log msg
+      logger.info msg
     end
 
   end
