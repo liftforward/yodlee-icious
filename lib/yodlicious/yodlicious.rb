@@ -49,8 +49,15 @@ module Yodlicious
         cobrandPassword: cobranded_password
       }
 
-      @cobranded_auth = execute_api '/authenticate/coblogin', params
-      @cobranded_auth
+      response = execute_api '/authenticate/coblogin', params
+
+      if response.success?
+        @cobranded_auth = response.body
+      else
+        @cobranded_auth = nil
+      end
+
+      response
     end
 
     def user_login login, pass
@@ -62,8 +69,13 @@ module Yodlicious
 
       response = execute_api '/authenticate/login', params
 
-      #TODO validate response before setting
-      @user_auth = response
+      if response.success?
+        @user_auth = response.body
+      else
+        @user_auth = nil
+      end
+
+      response
     end
 
     def logout_user
@@ -81,26 +93,36 @@ module Yodlicious
 
       response = cobranded_session_execute_api "/jsonsdk/UserRegistration/register3", params
 
-      @user_auth = response
-    end
+      if response.success?
+        @user_auth = response.body
+      else
+        @user_auth = nil
+      end
 
-    def unregister_user
-      authenticated_execute_api '/jsonsdk/UserRegistration/unregister'
+      response
     end
 
     def login_or_register_user  username, password, email
       info_log "attempting to login #{username}"
-      login_response = user_login(username, password)
+      response = user_login(username, password)
 
       #TODO look into what other errors could occur here
-      if login_response.has_key?('Error') && login_response['Error'][0]['errorDetail'] == "Invalid User Credentials"
+      if response.fail? && response.error == "Invalid User Credentials"
         info_log "invalid credentials for #{username} attempting to register"
-        login_response = register_user username, password, email
+        response = register_user username, password, email
       end
 
-      #TODO handle registration failure
+      if response.success?
+        @user_auth = response.body
+      else
+        @user_auth = nil
+      end
 
-      login_response 
+      response
+    end
+
+    def unregister_user
+      authenticated_execute_api '/jsonsdk/UserRegistration/unregister'
     end
 
     def site_search search_string
@@ -119,31 +141,33 @@ module Yodlicious
       authenticated_execute_api '/jsonsdk/SiteAccountManagement/addSiteAccount1', params
     end
 
-    def get_site_refresh_info site_account_id
-      authenticated_execute_api '/jsonsdk/Refresh/getSiteRefreshInfo', { memSiteAccId: site_account_id }
-    end
 
     def add_site_account_and_wait site_id, site_login_form, refresh_interval = 0.5, refresh_trys = 5
-      added_site_account = add_site_account(site_id, site_login_form)
+      response = add_site_account(site_id, site_login_form)
 
       #TODO validate response with assert
-      if added_site_account['siteRefreshInfo']['siteRefreshStatus']['siteRefreshStatus'] == 'REFRESH_TRIGGERED' &&
-         added_site_account['siteRefreshInfo']['siteRefreshMode']['refreshMode'] == 'NORMAL'
+      if response.success?
 
-        site_account_id = added_site_account['siteAccountId']
-        trys = 1
-        begin
-          info_log "try #{trys} to get refresh_info for #{site_id}"
-          trys += 1
-          sleep(refresh_interval)
-          refresh_info = get_site_refresh_info(site_account_id)
-        end until refresh_info['siteRefreshStatus']['siteRefreshStatus'] != 'REFRESH_TRIGGERED' || trys > refresh_trys
+         if response.body['siteRefreshInfo']['siteRefreshStatus']['siteRefreshStatus'] == 'REFRESH_TRIGGERED' &&
+            response.body['siteRefreshInfo']['siteRefreshMode']['refreshMode'] == 'NORMAL'
 
-        added_site_account['siteRefreshInfo'] = refresh_info
-        added_site_account
+          site_account_id = response.body['siteAccountId']
+          trys = 1
+          begin
+            info_log "try #{trys} to get refresh_info for #{site_id}"
+            trys += 1
+            sleep(refresh_interval)
+            refresh_info_response = get_site_refresh_info site_account_id
+            response.body['siteRefreshInfo'] = refresh_info_response.body unless refresh_info_response.fail?
+          end until (refresh_info_response.success? && refresh_info_response.body['siteRefreshStatus']['siteRefreshStatus'] != 'REFRESH_TRIGGERED') || trys > refresh_trys
+        end
+
+        response
       end
+    end
 
-
+    def get_site_refresh_info site_account_id
+      authenticated_execute_api '/jsonsdk/Refresh/getSiteRefreshInfo', { memSiteAccId: site_account_id }
     end
 
     def get_item_summaries
@@ -215,7 +239,7 @@ module Yodlicious
 
       case response.status
       when 200
-        JSON.parse(response.body)
+        Response.new(JSON.parse(response.body))
       else
       end
     end
@@ -233,15 +257,17 @@ module Yodlicious
     end
 
     def session_token
-      cobranded_auth['cobrandConversationCredentials']['sessionToken']
+      return nil if cobranded_auth.nil?
+      cobranded_auth.fetch('cobrandConversationCredentials',{}).fetch('sessionToken','dude')
     end
 
     def user_session_token
-      user_auth['userContext']['conversationCredentials']['sessionToken']
+      return nil if user_auth.nil?
+      user_auth.fetch('userContext',{}).fetch('conversationCredentials',{}).fetch('sessionToken',nil)
     end
 
     def debug_log msg
-      logger.debug msg
+      logger.info msg
     end
 
     def info_log msg

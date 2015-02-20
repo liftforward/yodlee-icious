@@ -3,6 +3,36 @@ require "yodlicious/config"
 
 describe Yodlicious::YodleeApi do
 
+  context 'Given a new uninitialized YodleeApi objecvt' do
+    before {
+      Yodlicious::Config.base_url=nil
+      Yodlicious::Config.cobranded_username=nil
+      Yodlicious::Config.cobranded_password=nil
+      Yodlicious::Config.proxy_url=nil
+    }
+    subject { Yodlicious::YodleeApi.new }
+
+    it 'should return nil for cobranded_auth' do
+      expect(subject.cobranded_auth).to be_nil
+    end
+
+    it 'should return nil for user_auth' do
+      expect(subject.user_auth).to be_nil
+    end
+
+    it 'should return nil for session_token' do
+      expect(subject.session_token).to be_nil
+    end
+
+    it 'should return nil for user_session_token' do
+      expect(subject.user_session_token).to be_nil
+    end
+
+    it 'should return a translator' do
+      expect(subject.translator).not_to be_nil
+    end
+  end
+
   context 'Given a Yodlicious::Config with nil configuration' do
     context 'When a new YodleeApi instance is created with no configuration' do
       before {

@@ -12,17 +12,24 @@ describe 'the yodlee api client integration tests', integration: true do
 
   let(:api) { Yodlicious::YodleeApi.new(config) }
 
+  let(:registered_user) {
+    {
+      email: 'testuser_with_transactions@liftforward.com',
+      password: 'testpassword143'
+    }
+  }
+
   describe 'the yodlee apis cobranded login endpoint' do
     context 'Given valid cobranded credentials and base_url' do
       context 'When /authenticate/coblogin is called the return' do
         subject { api.cobranded_login }
 
-        it { is_expected.to be_kind_of(Hash) }
-        it { is_expected.not_to be_empty }
+        it { is_expected.to be_kind_of(Yodlicious::Response) }
+        it { is_expected.to be_success }
 
         it 'contains valid json response' do
-          expect(subject['cobrandConversationCredentials']).not_to be_nil
-          expect(subject['cobrandConversationCredentials']['sessionToken']).not_to be_nil
+          expect(subject.body['cobrandConversationCredentials']).not_to be_nil
+          expect(subject.body['cobrandConversationCredentials']['sessionToken']).not_to be_nil
         end
       end
     end
@@ -37,11 +44,11 @@ describe 'the yodlee api client integration tests', integration: true do
             api.user_login 'testuser', 'testpassword'
           }
 
-          it { is_expected.to be_kind_of(Hash) }
-          it { is_expected.not_to be_empty }
+          it { is_expected.to be_kind_of(Yodlicious::Response) }
+          it { is_expected.to be_fail }
 
           it 'returns an error response' do
-            expect(subject).to eq({"Error"=>[{"errorDetail"=>"Invalid User Credentials"}]})
+            expect(subject.body).to eq({"Error"=>[{"errorDetail"=>"Invalid User Credentials"}]})
           end
         end
       end
@@ -53,11 +60,11 @@ describe 'the yodlee api client integration tests', integration: true do
             api.user_login 'testuser', 'testpassword'
           }
 
-          it { is_expected.to be_kind_of(Hash) }
-          it { is_expected.not_to be_empty }
+          it { is_expected.to be_kind_of(Yodlicious::Response) }
+          it { is_expected.to be_fail }
 
           it 'returns an error response' do
-            expect(subject).to eq({"Error"=>[{"errorDetail"=>"Invalid User Credentials"}]})
+            expect(subject.body).to eq({"Error"=>[{"errorDetail"=>"Invalid User Credentials"}]})
           end
         end
       end
@@ -78,11 +85,11 @@ describe 'the yodlee api client integration tests', integration: true do
           }
 
           it 'is expected to offer a valid response' do
-            is_expected.to be_kind_of(Hash)
-            is_expected.not_to be_empty
-            expect(subject['errorOccurred']).to be_nil
-            expect(subject['userContext']['conversationCredentials']['sessionToken']).to be_kind_of(String)
-            expect(subject['userContext']['conversationCredentials']['sessionToken'].length).to be > 0
+            is_expected.to be_kind_of(Yodlicious::Response)
+            is_expected.to be_success
+            expect(subject.body['errorOccurred']).to be_nil
+            expect(subject.body['userContext']['conversationCredentials']['sessionToken']).to be_kind_of(String)
+            expect(subject.body['userContext']['conversationCredentials']['sessionToken'].length).to be > 0
             expect(api.user_session_token).not_to be_nil
           end
         end
@@ -91,11 +98,37 @@ describe 'the yodlee api client integration tests', integration: true do
   end
 
   describe 'the yodlicious login_or_register_user method' do
+    before { api.cobranded_login }
 
-    it 'should login an existing user'
-    it 'should register a new user'
-    it 'should not register an existing user twice'
+    context 'Given a new user with valid credentials' do
+      after { api.unregister_user }
+      let (:email) { "testuser#{rand(100...200)}@test.com" }
+      let (:password) { "password#{rand(100...200)}" }
 
+      context 'When login_or_register_user is called' do
+        subject { api.login_or_register_user email, password, email }
+
+        it 'should register the new user and set the user_session_token'  do 
+          expect(subject).to be_success
+          expect(subject).to be_kind_of(Yodlicious::Response)
+          expect(api.user_session_token).not_to be_nil
+        end
+      end
+    end
+
+    context 'Given an existing user with valid credentials' do
+      before { api.register_user registered_user[:email], registered_user[:password], registered_user[:email] }
+
+      context 'When login_or_register_user is called' do
+        subject { api.login_or_register_user registered_user[:email], registered_user[:password], registered_user[:email] }
+
+        it 'should login the user and not register them' do
+          expect(subject).to be_success
+          expect(subject).to be_kind_of(Yodlicious::Response)
+          expect(api.user_session_token).not_to be_nil
+        end
+      end
+    end
   end
 
   describe 'the yodlee apis site info endpoint' do
@@ -109,11 +142,11 @@ describe 'the yodlee api client integration tests', integration: true do
 
         it 'is expected to contain login form details' do
           is_expected.not_to be_nil
-          is_expected.to be_kind_of(Hash)
-          expect(subject['errorOccurred']).to be_nil
-          expect(subject['loginForms']).not_to be_nil
-          expect(subject['loginForms']).to be_kind_of(Array)
-          expect(subject['loginForms'].length).to be > 0
+          is_expected.to be_kind_of(Yodlicious::Response)
+          expect(subject.body['errorOccurred']).to be_nil
+          expect(subject.body['loginForms']).not_to be_nil
+          expect(subject.body['loginForms']).to be_kind_of(Array)
+          expect(subject.body['loginForms'].length).to be > 0
         end
       end
     end
@@ -148,10 +181,11 @@ describe 'the yodlee api client integration tests', integration: true do
         subject { api.add_site_account_and_wait(16441, dag_login_form, seconds_between_retry, retry_count) }
 
         it 'is expected to respond with siteRefreshStatus=LOGIN_FAILURE and refreshMode=NORMAL a siteAccountId' do
-          expect(subject['siteRefreshInfo']['siteRefreshStatus']['siteRefreshStatus']).to eq('LOGIN_FAILURE')
-          expect(subject['siteRefreshInfo']['siteRefreshMode']['refreshMode']).to eq('NORMAL')
-          expect(subject['siteAccountId']).not_to be_nil
-          # puts JSON.pretty_generate(subject)
+          # puts JSON.pretty_generate(subject.body)
+          is_expected.to be_success
+          expect(subject.body['siteRefreshInfo']['siteRefreshStatus']['siteRefreshStatus']).to eq('LOGIN_FAILURE')
+          expect(subject.body['siteRefreshInfo']['siteRefreshMode']['refreshMode']).to eq('NORMAL')
+          expect(subject.body['siteAccountId']).not_to be_nil
         end
       end
 
@@ -163,10 +197,10 @@ describe 'the yodlee api client integration tests', integration: true do
         subject { api.add_site_account_and_wait(16441, dag_login_form, seconds_between_retry, retry_count) }
 
         it 'is expected to respond with siteRefreshStatus=LOGIN_SUCCESS and refreshMode=NORMAL a siteAccountId' do
-          # puts JSON.pretty_generate(subject)
-          expect(subject['siteRefreshInfo']['siteRefreshStatus']['siteRefreshStatus']).to eq('LOGIN_SUCCESS')
-          expect(subject['siteRefreshInfo']['siteRefreshMode']['refreshMode']).to eq('NORMAL')
-          expect(subject['siteAccountId']).not_to be_nil
+          is_expected.to be_success
+          expect(subject.body['siteRefreshInfo']['siteRefreshStatus']['siteRefreshStatus']).to eq('LOGIN_SUCCESS')
+          expect(subject.body['siteRefreshInfo']['siteRefreshMode']['refreshMode']).to eq('NORMAL')
+          expect(subject.body['siteAccountId']).not_to be_nil
         end
       end
 
@@ -177,7 +211,7 @@ describe 'the yodlee api client integration tests', integration: true do
     context 'Given a registered user with registered accounts' do
       before { 
         api.cobranded_login
-        api.user_login "testuser_with_transactions", 'testpassword143'
+        api.user_login "testuser_with_transactions@liftforward.com", 'testpassword143'
         # api.register_user "testuser#{rand(100..999)}", 'testpassword143', 'test@test.com'
         # dag_login_form[:componentList][0][:value] = 'yodlicious.site16441.1'
         # dag_login_form[:componentList][1][:value] = 'site16441.1'
@@ -196,11 +230,11 @@ describe 'the yodlee api client integration tests', integration: true do
 
         it 'is expected to return an array containing 1 siteAccount' do
           # puts JSON.pretty_generate(subject)
-          is_expected.not_to be_nil
-          is_expected.to be_kind_of(Array)
-          expect(subject.length).to be > 0
-          expect(subject[0]['siteAccountId']).not_to be_nil
-          expect(subject[0]['siteRefreshInfo']['siteRefreshStatus']['siteRefreshStatus']).to eq('REFRESH_COMPLETED')
+          is_expected.to be_success
+          expect(subject.body).to be_kind_of(Array)
+          expect(subject.body.length).to be > 0
+          expect(subject.body[0]['siteAccountId']).not_to be_nil
+          expect(subject.body[0]['siteRefreshInfo']['siteRefreshStatus']['siteRefreshStatus']).to eq('REFRESH_COMPLETED')
 
         end
       end
@@ -210,15 +244,15 @@ describe 'the yodlee api client integration tests', integration: true do
           site_accounts = api.get_all_site_accounts
           # puts site_accounts[0]['siteAccountId']
           # puts JSON.pretty_generate(site_accounts)
-          api.get_item_summaries_for_site(site_accounts[0]['siteAccountId'])
+          api.get_item_summaries_for_site(site_accounts.body[0]['siteAccountId'])
         }
 
         it 'is expected to return an array site summaries' do
           # puts JSON.pretty_generate(subject)
 
-          is_expected.not_to be_nil
-          is_expected.to be_kind_of(Array)
-          expect(subject[0]['itemId']).not_to be_nil
+          is_expected.to be_kind_of(Yodlicious::Response)
+          is_expected.to be_success
+          expect(subject.body[0]['itemId']).not_to be_nil
         end
       end
 
@@ -228,10 +262,10 @@ describe 'the yodlee api client integration tests', integration: true do
         it 'is expected to return an array of site summaries' do
           # puts JSON.pretty_generate(subject)
 
-          is_expected.not_to be_nil
-          is_expected.to be_kind_of(Array)
-          expect(subject.length).to be > 0
-          expect(subject[0]['itemId']).not_to be_nil
+          is_expected.to be_kind_of(Yodlicious::Response)
+          is_expected.to be_success
+          expect(subject.body.length).to be > 0
+          expect(subject.body[0]['itemId']).not_to be_nil
         end
       end
     end
@@ -241,24 +275,25 @@ describe 'the yodlee api client integration tests', integration: true do
     context 'Given a registered user with registered accounts' do
       before { 
         api.cobranded_login
-        api.user_login "testuser_with_transactions", 'testpassword143'
-        # dag_login_form[:componentList][0][:value] = 'yodlicious.site16441.1'
-        # dag_login_form[:componentList][1][:value] = 'site16441.1'
-        # api.add_site_account_and_wait(16441, dag_login_form)
+        api.login_or_register_user 'testuser_with_transactions@liftforward.com', 'testpassword143', 'testuser_with_transactions@liftforward.com'
+        dag_login_form['componentList'][0]['value'] = 'yodlicious.site16441.1'
+        dag_login_form['componentList'][1]['value'] = 'site16441.1'
+        api.add_site_account_and_wait(16441, dag_login_form)
       }
 
       context 'When a transaction search for all transactions is performed the result' do
         subject { api.execute_user_search_request }
 
         it 'is expected to return a valid search result' do
-          # puts JSON.pretty_generate(subject)
+          # puts JSON.pretty_generate(subject.body)
 
           is_expected.not_to be_nil
-          is_expected.to be_kind_of(Hash)
-          expect(subject['errorOccurred']).to be_nil
-          expect(subject['searchIdentifier']).not_to be_nil
-          expect(subject['searchResult']['transactions']).to be_kind_of(Array)
-          expect(subject['searchResult']['transactions'].length).to be > 0
+          is_expected.to be_kind_of(Yodlicious::Response)
+          is_expected.to be_success
+          expect(subject.body['errorOccurred']).to be_nil
+          expect(subject.body['searchIdentifier']).not_to be_nil
+          expect(subject.body['searchResult']['transactions']).to be_kind_of(Array)
+          expect(subject.body['searchResult']['transactions'].length).to be > 0
         end
       end
     end
