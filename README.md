@@ -28,16 +28,14 @@ We needed to use the Yodlee API both within a rails app and outside with multipl
 require "yodlicious"
 
 config = {
-  base_url: ENV['YODLEE_BASE_URL'],
-  cobranded_username: ENV['YODLEE_COBRANDED_USERNAME'],
-  cobranded_password: ENV['YODLEE_COBRANDED_PASSWORD'],
-  proxy_url: ENV['YODLICIOUS_PROXY_URL']
+  base_url: "https://consolidatedsdk.yodlee.com/yodsoap/srest/my-cobranded-path/v1.0",
+  cobranded_username: "my-cobranded-user",
+  cobranded_password: "my-cobranded-password"
 }
 
 yodlee_api = Yodlicious::YodleeApi.new(config)
 
 ```
-
 When in a Rails app it can be more convenient to use a global default configuration. To use global defaults:
 ```ruby
 #/<myproject>/config/initializers/yodlicious.rb
@@ -47,7 +45,6 @@ require 'yodlicious'
 Yodlicious::Config.base_url = ENV['YODLEE_BASE_URL']
 Yodlicious::Config.cobranded_username = ENV['YODLEE_COBRANDED_USERNAME']
 Yodlicious::Config.cobranded_password = ENV['YODLEE_COBRANDED_PASSWORD']
-Yodlicious::Config.proxy_url = ENV['YODLICIOUS_PROXY_URL'] //optional
 
 #setting yodlicious logger to use the Rails logger
 Yodlicious::Config.logger = Rails.logger
@@ -72,9 +69,20 @@ will output
 https://secure.yodlee.com/blablabla
 ```
 
-### Running integration tests to verify
-
 ### Configuring the proxy
+
+If you're Yodlee account is like ours Yodlee will whitelist certain IPs for access and you'll need to proxy all of your API requests through that IP. You can set the proxy with the proxy_url key. Currently the proxy supports, http, https, and socks proxies. Simply set the proxy_url property in the config hash passed to YodleeApi and it should begin using the proxy. For example:
+
+```
+config = {
+  base_url: "https://consolidatedsdk.yodlee.com/yodsoap/srest/my-cobranded-path/v1.0",
+  cobranded_username: "my-cobranded-user",
+  cobranded_password: "my-cobranded-password",
+  proxy_url: "https://my-proxy-server-on-the-whitelist:my=proxy-port/"
+}
+
+yodlee_api = Yodlicious::YodleeApi.new(config)
+```
 
 ### Working with Response
 
@@ -85,3 +93,13 @@ https://secure.yodlee.com/blablabla
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create a new Pull Request
+
+### Running the integration suite
+
+To run the Yodlicious integration tests you'll need an approved yodlee account. This is more than the one offered here [https://devnow.yodlee.com/user/register]. (Some of the integration suite will work against the devnow APIs but not all. On my todo list is to separate them out to make testing easier.) The integration suite expects these values to be set in the following environment variables:
+```
+YODLEE_BASE_URL="https://consolidatedsdk.yodlee.com/yodsoap/srest/my-cobranded-path/v1.0"
+YODLEE_COBRANDED_USERNAME="my-cobranded-user"
+YODLEE_COBRANDED_PASSWORD="my-cobranded-password"
+YODLICIOUS_PROXY_URL="https://my-proxy-server-on-the-whitelist:my=proxy-port/"
+```
