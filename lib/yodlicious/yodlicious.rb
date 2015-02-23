@@ -78,7 +78,7 @@ module Yodlicious
     end
 
     def logout_user
-      authenticated_execute_api '/jsonsdk/Login/logout'
+      user_session_execute_api '/jsonsdk/Login/logout'
     end
 
     def register_user username, password, emailAddress, options = {}
@@ -121,15 +121,15 @@ module Yodlicious
     end
 
     def unregister_user
-      authenticated_execute_api '/jsonsdk/UserRegistration/unregister'
+      user_session_execute_api '/jsonsdk/UserRegistration/unregister'
     end
 
     def site_search search_string
-      authenticated_execute_api "/jsonsdk/SiteTraversal/searchSite", { siteSearchString: search_string }
+      user_session_execute_api "/jsonsdk/SiteTraversal/searchSite", { siteSearchString: search_string }
     end
 
     def search_content_services search_string
-      authenticated_execute_api "/jsonsdk/Search/searchContentServices", { keywords: search_string }
+      user_session_execute_api "/jsonsdk/Search/searchContentServices", { keywords: search_string }
     end
 
     def add_site_account site_id, site_login_form
@@ -137,7 +137,7 @@ module Yodlicious
         siteId: site_id
       }.merge(translator.site_login_form_to_add_site_account_params(site_login_form))
 
-      authenticated_execute_api '/jsonsdk/SiteAccountManagement/addSiteAccount1', params
+      user_session_execute_api '/jsonsdk/SiteAccountManagement/addSiteAccount1', params
     end
 
 
@@ -166,19 +166,19 @@ module Yodlicious
     end
 
     def get_site_refresh_info site_account_id
-      authenticated_execute_api '/jsonsdk/Refresh/getSiteRefreshInfo', { memSiteAccId: site_account_id }
+      user_session_execute_api '/jsonsdk/Refresh/getSiteRefreshInfo', { memSiteAccId: site_account_id }
     end
 
     def get_item_summaries
-      authenticated_execute_api '/jsonsdk/DataService/getItemSummaries', { 'bridgetAppId' => '10003200' }
+      user_session_execute_api '/jsonsdk/DataService/getItemSummaries', { 'bridgetAppId' => '10003200' }
     end
 
     def get_item_summaries_for_site site_account_id
-      authenticated_execute_api '/jsonsdk/DataService/getItemSummariesForSite', { memSiteAccId: site_account_id }
+      user_session_execute_api '/jsonsdk/DataService/getItemSummariesForSite', { memSiteAccId: site_account_id }
     end
 
     def get_all_site_accounts
-      authenticated_execute_api '/jsonsdk/SiteAccountManagement/getAllSiteAccounts'
+      user_session_execute_api '/jsonsdk/SiteAccountManagement/getAllSiteAccounts'
     end
 
     def get_site_info site_id
@@ -208,7 +208,7 @@ module Yodlicious
         'transactionSearchRequest.searchFilter.transactionSplitType' => 'ALL_TRANSACTION'
       }.merge(options)
 
-      authenticated_execute_api "/jsonsdk/TransactionSearchService/executeUserSearchRequest", params
+      user_session_execute_api "/jsonsdk/TransactionSearchService/executeUserSearchRequest", params
     end
 
     def cobranded_session_execute_api uri, params = {}
@@ -219,7 +219,7 @@ module Yodlicious
       execute_api uri, params
     end
 
-    def authenticated_execute_api uri, params = {}
+    def user_session_execute_api uri, params = {}
       params = {
         userSessionToken: user_session_token
       }.merge(params)
