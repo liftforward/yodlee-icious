@@ -63,11 +63,10 @@ module Yodlicious
     def user_login login, pass
       params = {
         login: login,
-        password: pass,
-        cobSessionToken: session_token
+        password: pass
       }
 
-      response = execute_api '/authenticate/login', params
+      response = cobranded_session_execute_api '/authenticate/login', params
 
       if response.success?
         @user_auth = response.body
@@ -222,11 +221,10 @@ module Yodlicious
 
     def authenticated_execute_api uri, params = {}
       params = {
-        cobSessionToken: cobranded_session_token,
         userSessionToken: user_session_token
       }.merge(params)
 
-      execute_api uri, params
+      cobranded_session_execute_api uri, params
     end
 
     def execute_api uri, params = {}
