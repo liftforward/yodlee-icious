@@ -21,7 +21,7 @@ describe Yodlicious::YodleeApi do
     end
 
     it 'should return nil for session_token' do
-      expect(subject.session_token).to be_nil
+      expect(subject.cobranded_session_token).to be_nil
     end
 
     it 'should return nil for user_session_token' do

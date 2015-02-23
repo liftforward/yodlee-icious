@@ -214,7 +214,7 @@ module Yodlicious
 
     def cobranded_session_execute_api uri, params = {}
       params = {
-        cobSessionToken: session_token,
+        cobSessionToken: cobranded_session_token,
       }.merge(params)
 
       execute_api uri, params
@@ -222,7 +222,7 @@ module Yodlicious
 
     def authenticated_execute_api uri, params = {}
       params = {
-        cobSessionToken: session_token,
+        cobSessionToken: cobranded_session_token,
         userSessionToken: user_session_token
       }.merge(params)
 
@@ -256,7 +256,7 @@ module Yodlicious
       @user_auth
     end
 
-    def session_token
+    def cobranded_session_token
       return nil if cobranded_auth.nil?
       cobranded_auth.fetch('cobrandConversationCredentials',{}).fetch('sessionToken','dude')
     end
