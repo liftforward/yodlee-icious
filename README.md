@@ -84,7 +84,29 @@ config = {
 yodlee_api = Yodlicious::YodleeApi.new(config)
 ```
 
-### Working with Response
+## Working with the API
+
+The Yodlee Api responses are somewhat veried (especially the errors) and as such we build Yodlicious as a pretty thin layer around their request/response model. We didn't attempt to map all their JSON responses into models or anything fancy like that. Instead we simply created a method for each API endpoint which takes the required parameters and return a response object. That said, Response object does provide some conveniences to make up for the inconsisten deliver of errors from Yodlee's APIs.
+
+### Starting your cobranded session
+
+Once you've configured an instance of the YodleeAPI the first thing you must do is start a Yodlee cobranded session. This is also a good rails console test to see if everything is configured correctly: 
+
+```ruby
+pry(main)> yodlee_api = Yodlicious::YodleeApi.new
+pry(main)> response = yodlee_api.cobranded_login
+pry(main)> response.success?
+=> true
+```
+As you probably suspect the call to cobranded_login wraps the ```/authenticate/coblogin``` endpoint call. If this is a success the YodleeApi instance will cache the cobranded session id yodlee returned and use it on all subsequent api calls. You can also access the value if desired as follows:
+```
+pry(main)> yodlee_api.cobranded_session_token
+```
+At this point something has probably gone wrong for you and you want to see the response json from ```/authenticate/coblogin```. To do this simply use ```response#body```. 
+```
+pry(main)> response.body
+=> {"Error"=>[{"errorDetail"=>"Invalid Cobrand Credentials"}]}
+```
 
 ## Contributing
 
