@@ -98,9 +98,10 @@ pry(main)> response = yodlee_api.cobranded_login
 pry(main)> response.success?
 => true
 ```
-As you probably suspect the call to cobranded_login wraps the ```/authenticate/coblogin``` endpoint call. If this is a success the YodleeApi instance will cache the cobranded session id yodlee returned and use it on all subsequent api calls. You can also access the value if desired as follows:
+As you probably suspect the call to cobranded_login wraps the ```/authenticate/coblogin``` endpoint call. If this is a success the YodleeApi instance will cache the cobranded session id yodlee returned and use it on all subsequent api calls. You can also access this value if desired with YodleeApi#cobranded_session_token.
 ```
 pry(main)> yodlee_api.cobranded_session_token
+=> "12162013_1:a0b1ac3e32a2e656f8f5bd21de23ae1721ffd9dab8bee9f29811f5959bbf102f16c98354eba252bb030dc96e267bd2489a40562f18e09ee8ba9038d19280cc43"
 ```
 At this point something has probably gone wrong for you and you want to see the response json from ```/authenticate/coblogin```. To do this simply use ```response#body```. 
 ```
