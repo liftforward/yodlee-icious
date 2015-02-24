@@ -115,7 +115,38 @@ pry(main)> response.body
 => {"Error"=>[{"errorDetail"=>"Invalid Cobrand Credentials"}]}
 ```
 
+### Starting a user session
+
+Once the cobranded session is active a number of API endpoints will work however most of the interesting ones require you to register or login under a user account. It is within these accounts that you can add the user's bank accounts and whatnot to aggregate their financial data. There are 3 methods offered to allow you to #register_user, #login_user, or do either #login_or_register_user. After executing any of these the user session will be started and the user's session token will be cached in the YodleeApi instance and used on subsequent calls to api endpoints. As with all api calls if the call was not successful you'll need to look at the body of the response to determine what went wrong. 
+
+### Registering a new user
+
+```
+pry(main)> response = yodlee_api.register_user 'my-username', 'my-password123', 'my-email@my-domain.com'
+pry(main)> yodlee_api.user_session_token
+=> "12162013_1:69761d51a4010e6382ccb49b854513dbccad0f835a873d37884b68826acefaa5b8d41b634f4cc83d97d86e7df861f70860a4e4d8a3f08d5b5440eae504af5f19"
+```
+
+### Login existing user
+
+```
+pry(main)> response = yodlee_api.user_login 'my-username', 'my-password123'
+pry(main)> yodlee_api.user_session_token
+=> "12162013_1:69761d51a4010e6382ccb49b854513dbccad0f835a873d37884b68826acefaa5b8d41b634f4cc83d97d86e7df861f70860a4e4d8a3f08d5b5440eae504af5f19"
+```
+
+### Convenience for doing both
+
+In case you have a situation where you don't know if the user is already registered there is #login_or_register_user
+
+```
+pry(main)> response = yodlee_api.login_or_register_user 'my-username', 'my-password123', 'my-email@my-domain.com'
+pry(main)> yodlee_api.user_session_token
+=> "12162013_1:69761d51a4010e6382ccb49b854513dbccad0f835a873d37884b68826acefaa5b8d41b634f4cc83d97d86e7df861f70860a4e4d8a3f08d5b5440eae504af5f19"
+```
 ### other API methods
+
+TODO
 
 ## Contributing
 
