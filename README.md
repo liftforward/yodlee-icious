@@ -2,6 +2,8 @@
 
 Yodlicisous is a ruby gem wrapping the Yodlee REST(ish) API. We had to build this for our integration with Yodlee which was somewhat more painful than it should have been so we figured we share to be a good neighbor.
 
+![image of yodlicious](https://github.com/liftforward/yodlicious/blob/master/yodlicious.png)
+
 ## Installation
 
 Add this line to your application's Gemfile:
