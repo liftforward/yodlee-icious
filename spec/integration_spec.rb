@@ -293,6 +293,57 @@ describe 'the yodlee api client integration tests', integration: true do
     end
   end
 
+  describe '#put_mfa_request_for_site' do
+    context 'Given a valid cobranded credentials and base_url' do
+      context 'Given a user who is logged into the api' do
+        context 'Given a user attempting to add a site with Token Based MFA' do
+          context 'When #put_mfa_request_for_site is called the response' do
+            subject {
+              api.cobranded_login
+              response = api.login_or_register_user "testuser#{rand(100...200)}", 'testpassword143', 'test@test.com'
+
+              dag_fmfa_login_form['componentList'][0]['value'] = 'yodlicious1.site16445.1'
+              dag_fmfa_login_form['componentList'][1]['value'] = 'site16445.1'
+
+              response = api.add_site_account_and_wait(16445, dag_fmfa_login_form)
+              expect(response).to be_success
+
+              expect(response.body['siteRefreshInfo']['siteRefreshMode']['refreshMode']).to eq('MFA')
+              site_account_id = response.body['siteAccountId']
+              response = api.get_mfa_response_for_site_and_wait site_account_id, 2
+              #{ 
+              #  "isMessageAvailable":true,
+              #  "fieldInfo":{
+              #    "responseFieldType":"text",
+              #    "minimumLength":-1,
+              #    "maximumLength":6,
+              #    "displayString":"Security Key"
+              #  },
+              #  "timeOutTime":116420,
+              #  "itemId":0,
+              #  "memSiteAccId":10992295,
+              #  "retry":false
+              #}
+              expect(response.body['isMessageAvailable']).to be_truthy
+
+              field_info = response.body['fieldInfo']
+              field_info['value'] = "monkeys"
+              api.put_mfa_request_for_site site_account_id, :MFATokenResponse, field_info
+            }
+
+            it 'is expected be a valid response' do
+              is_expected.to be_kind_of(Yodlicious::Response)
+              is_expected.to be_success
+              expect(subject.body['primitiveObj']).to be_truthy
+            end
+
+            after { api.unregister_user }
+          end
+        end
+      end
+    end
+  end
+
   describe 'the yodlee apis fetching summary data about registered site accounts endpoints' do
     context 'Given a registered user with registered accounts' do
       before { 

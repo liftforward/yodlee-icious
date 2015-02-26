@@ -181,9 +181,19 @@ module Yodlicious
     def get_mfa_response_for_site_and_wait site_account_id, refresh_interval=0.5, max_trys=5
       response = get_mfa_response_for_site site_account_id
 
+      # {
+      #   "isMessageAvailable"=>true,
+      #   "fieldInfo"=>{"questionAndAnswerValues"=>[], "numOfMandatoryQuestions"=>-1},
+      #   "timeOutTime"=>39740,
+      #   "itemId"=>0,
+      #   "errorCode"=>0,
+      #   "memSiteAccId"=>10992387,
+      #   "retry"=>false
+      # }
+
       if response.success?
         try = 1
-        while response.body['isMessageAvailable'] != true && try < max_trys
+        while response.body['errorCode'].nil? && response.body['isMessageAvailable'] != true && try < max_trys
           info_log "try #{try} to get mfa message for #{site_account_id}"
           try += 1
           sleep(refresh_interval)
@@ -192,6 +202,20 @@ module Yodlicious
       end
 
       response
+    end
+
+    def put_mfa_request_for_site site_account_id, mfa_type, field_info
+      params = {
+        memSiteAccId: site_account_id
+      }
+
+      case mfa_type
+      when :MFATokenResponse
+        params['userResponse.objectInstanceType']='com.yodlee.core.mfarefresh.MFATokenResponse'
+        params['userResponse.token']=field_info['value']
+      end
+
+      user_session_execute_api '/jsonsdk/Refresh/putMFARequestForSite', params
     end
 
     def get_site_refresh_info site_account_id
