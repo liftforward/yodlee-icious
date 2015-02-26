@@ -177,7 +177,23 @@ module Yodlicious
     def get_mfa_response_for_site site_account_id
       user_session_execute_api '/jsonsdk/Refresh/getMFAResponseForSite', { memSiteAccId: site_account_id }
     end
-    
+
+    def get_mfa_response_for_site_and_wait site_account_id, refresh_interval=0.5, max_trys=5
+      response = get_mfa_response_for_site site_account_id
+
+      if response.success?
+        try = 1
+        while response.body['isMessageAvailable'] != true && try < max_trys
+          info_log "try #{try} to get mfa message for #{site_account_id}"
+          try += 1
+          sleep(refresh_interval)
+          response = get_mfa_response_for_site site_account_id
+        end
+      end
+
+      response
+    end
+
     def get_site_refresh_info site_account_id
       user_session_execute_api '/jsonsdk/Refresh/getSiteRefreshInfo', { memSiteAccId: site_account_id }
     end
@@ -246,7 +262,7 @@ module Yodlicious
       connection = Faraday.new(url: base_url, ssl: ssl_opts, request: { proxy: proxy_opts })
 
       response = connection.post("#{base_url}#{uri}", params)
-      debug_log "response=#{response.status} body=#{response.body} headers=#{response.headers}"
+      debug_log "response=#{response.status} success?=#{response.success?} body=#{response.body} "
 
       case response.status
       when 200
