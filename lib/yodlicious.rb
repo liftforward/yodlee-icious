@@ -8,7 +8,7 @@ require File.dirname(__FILE__) + "/yodlicious/version"
 require File.dirname(__FILE__) + "/yodlicious/config"
 require File.dirname(__FILE__) + "/yodlicious/parameter_translator"
 require File.dirname(__FILE__) + "/yodlicious/response"
-require File.dirname(__FILE__) + "/yodlicious/yodlicious"
+require File.dirname(__FILE__) + "/yodlicious/yodlee_api"
 
 class Faraday::Adapter::NetHttp
   def net_http_connection(env)
