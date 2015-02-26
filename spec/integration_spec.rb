@@ -97,6 +97,31 @@ describe 'the yodlee api client integration tests', integration: true do
     end
   end
 
+  describe '#unregister_user' do
+    context 'Given a valid cobranded credentials and base_url' do
+      context 'Given a user who it logged into the api' do
+        context 'When #unregister_user is called the response' do
+          subject {
+            api.cobranded_login
+            api.login_or_register_user "testuser#{rand(100...200)}", 'testpassword143', 'test@test.com'
+            expect(api.user_session_token).not_to be_nil
+            api.unregister_user
+          }
+
+
+          it 'is expected to offer a valid response' do
+            is_expected.to be_kind_of(Yodlicious::Response)
+            is_expected.to be_success
+            expect(api.user_session_token).to be_nil
+          end
+
+          after { api.unregister_user }
+
+        end
+      end
+    end
+  end
+
   describe 'the yodlicious login_or_register_user method' do
     before { api.cobranded_login }
 

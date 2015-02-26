@@ -121,7 +121,12 @@ module Yodlicious
     end
 
     def unregister_user
-      user_session_execute_api '/jsonsdk/UserRegistration/unregister'
+      response = user_session_execute_api '/jsonsdk/UserRegistration/unregister'
+      if response.success?
+        @user_auth = nil
+      end
+
+      response
     end
 
     def site_search search_string
