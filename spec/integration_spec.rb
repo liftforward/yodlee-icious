@@ -178,7 +178,7 @@ describe 'the yodlee api client integration tests', integration: true do
   end
 
   #todo reorganize this spec to use given-when-then
-  describe 'Yodilicious add_site_account_and_wait method' do
+  describe '#add_site_account_and_wait' do
     context 'Given a user who has registered and does not have any accounts' do
       before { 
         api.cobranded_login
@@ -231,6 +231,37 @@ describe 'the yodlee api client integration tests', integration: true do
 
     end
   end
+
+  describe '#get_mfa_response_for_site' do
+    context 'Given a valid cobranded credentials and base_url' do
+      context 'Given a user who it logged into the api' do
+        context 'When #get_mfa_response_for_site is called the response' do
+          subject {
+            api.cobranded_login
+            response = api.login_or_register_user "testuser#{rand(100...200)}", 'testpassword143', 'test@test.com'
+
+            dag_fmfa_login_form['componentList'][0]['value'] = 'yodlicious1.site16445.1'
+            dag_fmfa_login_form['componentList'][1]['value'] = 'site16445.1'
+
+            response = api.add_site_account_and_wait(16445, dag_fmfa_login_form)
+            expect(response).to be_success
+            # puts "refreshMode= #{response.body['siteRefreshInfo']['siteRefreshMode']['refreshMode']}"
+            expect(response.body['siteRefreshInfo']['siteRefreshMode']['refreshMode']).to eq('MFA')
+            api.get_mfa_response_for_site response.body['siteAccountId']
+          }
+
+          it 'is expected to offer a valid response' do
+            is_expected.to be_kind_of(Yodlicious::Response)
+            is_expected.to be_success
+            expect(subject.body['isMessageAvailable']).not_to be_nil
+          end
+
+          after { api.unregister_user }
+        end
+      end
+    end
+  end
+
 
   describe 'the yodlee apis fetching summary data about registered site accounts endpoints' do
     context 'Given a registered user with registered accounts' do
@@ -491,4 +522,137 @@ describe 'the yodlee api client integration tests', integration: true do
       "defaultHelpText": "16103"
     }')
   }
+
+  let(:dag_fmfa_login_form) {
+    {
+      "conjunctionOp"=> {
+        "conjuctionOp"=>1
+      },
+      "componentList"=> [ 
+        {
+          "valueIdentifier"=>"LOGIN1",
+          "valueMask"=>"LOGIN_FIELD",
+          "fieldType"=>{"typeName"=>"IF_LOGIN"},
+          "size"=>20,
+          "maxlength"=>40,
+          "name"=>"LOGIN1",
+          "displayName"=>"Catalog",
+          "isEditable"=>true,
+          "isOptional"=>false,
+          "isEscaped"=>false,
+          "helpText"=>"150876",
+          "isOptionalMFA"=>false,
+          "isMFA"=>false
+        },
+        {
+          "valueIdentifier"=>"PASSWORD1",
+          "valueMask"=>"LOGIN_FIELD",
+          "fieldType"=>{"typeName"=>"IF_PASSWORD"},
+          "size"=>20,
+          "maxlength"=>40,
+          "name"=>"PASSWORD1",
+          "displayName"=>"Password",
+          "isEditable"=>true,
+          "isOptional"=>false,
+          "isEscaped"=>false,
+          "helpText"=>"150877",
+          "isOptionalMFA"=>false,
+          "isMFA"=>false
+        }
+      ],
+      "defaultHelpText"=>"16126"
+    }
+  }
+
+  let(:dag_mfa_login_form) {
+    JSON.parse('{
+      "conjunctionOp" : 
+      { 
+        "conjuctionOp" : 1
+      },
+      "componentList" : [
+        {
+          "valueIdentifier" : "LOGIN",
+           "valueMask" : "LOGIN_FIELD",
+           "fieldType" : {"typeName" : "IF_LOGIN"},
+           "size" : 20,
+           "maxlength" : 40,
+           "name" : "LOGIN",
+           "displayName" : "Catalog",
+           "isEditable" : true,
+           "isOptional" : false,
+           "isEscaped" : false,
+           "helpText" : "150970",
+           "isOptionalMFA" : false,
+           "isMFA" : false
+        },
+        {
+          "valueIdentifier" : "PASSWORD",
+          "valueMask" : "LOGIN_FIELD",
+          "fieldType" : {"typeName" : "IF_PASSWORD"},
+          "size" : 20,
+          "maxlength" : 40,
+          "name" : "PASSWORD",
+          "displayName" : "Password",
+          "isEditable" : true,
+          "isOptional" : false,
+          "isEscaped" : false,
+          "helpText" : "150971",
+          "isOptionalMFA" : false,
+          "isMFA" : false
+        }
+      ],
+      "defaultHelpText" : "16167"
+    }')
+  }
 end
+
+
+
+  # {"popularity"=>0,
+  #  "siteId"=>16477,
+  #  "orgId"=>1148,
+  #  "defaultDisplayName"=>"DagSIteMFAAndNonMFA (US)",
+  #  "defaultOrgDisplayName"=>"Demo Bank",
+  #  "contentServiceInfos"=>
+  #   [{"contentServiceId"=>20631, "siteId"=>16477, "containerInfo"=>{"containerName"=>"bank", "assetType"=>1}},
+  #    {"contentServiceId"=>20632, "siteId"=>16477, "containerInfo"=>{"containerName"=>"miles", "assetType"=>0}}],
+  #  "enabledContainers"=>[{"containerName"=>"bank", "assetType"=>1}, {"containerName"=>"miles", "assetType"=>0}],
+  #  "baseUrl"=>"http://192.168.210.152:9090/dag/dhaction.do",
+  #  "loginForms"=>
+  #   [{"conjunctionOp"=>{"conjuctionOp"=>1},
+  #     "componentList"=>
+  #      [{"valueIdentifier"=>"LOGIN",
+  #        "valueMask"=>"LOGIN_FIELD",
+  #        "fieldType"=>{"typeName"=>"IF_LOGIN"},
+  #        "size"=>20,
+  #        "maxlength"=>40,
+  #        "name"=>"LOGIN",
+  #        "displayName"=>"Catalog",
+  #        "isEditable"=>true,
+  #        "isOptional"=>false,
+  #        "isEscaped"=>false,
+  #        "helpText"=>"150970",
+  #        "isOptionalMFA"=>false,
+  #        "isMFA"=>false},
+  #       {"valueIdentifier"=>"PASSWORD",
+  #        "valueMask"=>"LOGIN_FIELD",
+  #        "fieldType"=>{"typeName"=>"IF_PASSWORD"},
+  #        "size"=>20,
+  #        "maxlength"=>40,
+  #        "name"=>"PASSWORD",
+  #        "displayName"=>"Password",
+  #        "isEditable"=>true,
+  #        "isOptional"=>false,
+  #        "isEscaped"=>false,
+  #        "helpText"=>"150971",
+  #        "isOptionalMFA"=>false,
+  #        "isMFA"=>false}],
+  #     "defaultHelpText"=>"16167"}],
+  #  "isHeld"=>false,
+  #  "isCustom"=>false,
+  #  "mfaType"=>{"typeId"=>4, "typeName"=>"SECURITY_QUESTION"},
+  #  "mfaCoverage"=>"FMPA",
+  #  "siteSearchVisibility"=>true,
+  #  "isAlreadyAddedByUser"=>false,
+  #  "isOauthEnabled"=>false}

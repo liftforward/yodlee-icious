@@ -174,6 +174,10 @@ module Yodlicious
              ['REFRESH_TRIGGERED','PARTIAL_COMPLETE'].include?(site_refresh_info['siteRefreshStatus']['siteRefreshStatus'])
     end
 
+    def get_mfa_response_for_site site_account_id
+      user_session_execute_api '/jsonsdk/Refresh/getMFAResponseForSite', { memSiteAccId: site_account_id }
+    end
+    
     def get_site_refresh_info site_account_id
       user_session_execute_api '/jsonsdk/Refresh/getSiteRefreshInfo', { memSiteAccId: site_account_id }
     end
