@@ -147,8 +147,7 @@ module Yodlicious
       #TODO validate response with assert
       if response.success?
 
-         if response.body['siteRefreshInfo']['siteRefreshStatus']['siteRefreshStatus'] == 'REFRESH_TRIGGERED' &&
-            response.body['siteRefreshInfo']['siteRefreshMode']['refreshMode'] == 'NORMAL'
+        if normal_site_refresh_in_progress?(response.body['siteRefreshInfo'])
 
           site_account_id = response.body['siteAccountId']
           trys = 1
@@ -158,11 +157,16 @@ module Yodlicious
             sleep(refresh_interval)
             refresh_info_response = get_site_refresh_info site_account_id
             response.body['siteRefreshInfo'] = refresh_info_response.body unless refresh_info_response.fail?
-          end until (refresh_info_response.success? && refresh_info_response.body['siteRefreshStatus']['siteRefreshStatus'] != 'REFRESH_TRIGGERED') || trys > refresh_trys
+          end until (refresh_info_response.success? && !normal_site_refresh_in_progress?(refresh_info_response.body)) || trys > refresh_trys
         end
 
         response
       end
+    end
+
+    def normal_site_refresh_in_progress? site_refresh_info
+      return site_refresh_info['siteRefreshMode']['refreshMode'] == 'NORMAL' &&
+             ['REFRESH_TRIGGERED','PARTIAL_COMPLETE'].include?(site_refresh_info['siteRefreshStatus']['siteRefreshStatus'])
     end
 
     def get_site_refresh_info site_account_id
