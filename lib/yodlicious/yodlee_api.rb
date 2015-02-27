@@ -222,6 +222,15 @@ module Yodlicious
       user_session_execute_api '/jsonsdk/Refresh/getSiteRefreshInfo', { memSiteAccId: site_account_id }
     end
 
+    def get_content_service_info_by_routing_number routing_number, no_trim = true
+      params = {
+        routingNumber: routing_number,
+        notrim: no_trim
+      }
+
+      cobranded_session_execute_api '/jsonsdk/RoutingNumberService/getContentServiceInfoByRoutingNumber', params
+    end
+
     def get_item_summaries
       user_session_execute_api '/jsonsdk/DataService/getItemSummaries', { 'bridgetAppId' => '10003200' }
     end

@@ -156,7 +156,7 @@ describe 'the yodlee api client integration tests', integration: true do
     end
   end
 
-  describe 'the yodlee apis site info endpoint' do
+  describe '#get_site_info' do
     context 'Given a valid cobranded credentials and base_url' do
       before { 
         api.cobranded_login
@@ -172,6 +172,38 @@ describe 'the yodlee api client integration tests', integration: true do
           expect(subject.body['loginForms']).not_to be_nil
           expect(subject.body['loginForms']).to be_kind_of(Array)
           expect(subject.body['loginForms'].length).to be > 0
+        end
+      end
+    end
+  end
+
+
+  describe '#get_content_service_info_by_routing_number' do
+    context 'Given a valid cobranded credentials and base_url' do
+      before { api.cobranded_login }
+
+      context 'When #get_content_service_info_by_routing_number is called with a valid routing number the result' do
+        subject { api.get_content_service_info_by_routing_number 999988181 }
+
+        it 'is expected to contain valid content services info' do
+          is_expected.not_to be_nil
+          is_expected.to be_kind_of(Yodlicious::Response)
+          is_expected.to be_success
+          expect(subject.body['errorOccurred']).to be_nil
+          expect(subject.body['siteId']).to eq(16441)
+          expect(subject.body['contentServiceDisplayName']).to eq('Dag Site (US) - Bank')
+        end
+      end
+
+      context 'When #get_content_service_info_by_routing_number is called with an invalid routing number' do
+        subject { api.get_content_service_info_by_routing_number -23423 }
+
+        it 'is expected to contain valid error details' do
+          is_expected.not_to be_nil
+          is_expected.to be_kind_of(Yodlicious::Response)
+          is_expected.to be_fail
+          expect(subject.body['errorOccurred']).to be_truthy
+          expect(subject.body['exceptionType']).to eq('com.yodlee.core.routingnumberservice.InvalidRoutingNumberException')
         end
       end
     end
