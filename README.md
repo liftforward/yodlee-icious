@@ -1,8 +1,8 @@
+![image of yodlicious](https://github.com/liftforward/yodlicious/blob/master/yodlicious.png)
+
 # Yodlicious 0.0.1 [ ![Codeship Status for liftforward/yodlicious](https://codeship.com/projects/71603f00-9393-0132-dcd0-1a9a253548c0/status?branch=master)](https://codeship.com/projects/62288)
 
 Yodlicisous is a ruby gem wrapping the Yodlee REST(ish) API. We had to build this for our integration with Yodlee which was somewhat more painful than it should have been so we figured we share to be a good neighbor.
-
-![image of yodlicious](https://github.com/liftforward/yodlicious/blob/master/yodlicious.png)
 
 ## Installation
 
