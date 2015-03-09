@@ -206,13 +206,27 @@ module Yodlicious
 
     def put_mfa_request_for_site site_account_id, mfa_type, field_info
       params = {
-        memSiteAccId: site_account_id
+        'memSiteAccId' => site_account_id,
+        'userResponse.objectInstanceType' => "com.yodlee.core.mfarefresh.#{mfa_type}"
       }
 
-      case mfa_type
+      case mfa_type.to_sym
       when :MFATokenResponse
-        params['userResponse.objectInstanceType']='com.yodlee.core.mfarefresh.MFATokenResponse'
         params['userResponse.token']=field_info['value']
+      when :MFAImageResponse
+        params['userResponse.imageString']=field_info['value']
+      when :MFAQuesAnsResponse
+        questionsArray = field_info['questionAndAnswerValues']
+        i = 0
+        while i < questionsArray.length do
+          puts "questionsArray= #{questionsArray[i].class} #{i}"
+          params["userResponse.quesAnsDetailArray[#{i}].answer"]=questionsArray[i]['value']
+          params["userResponse.quesAnsDetailArray[#{i}].answerFieldType"]=questionsArray[i]['answerFieldType']
+          params["userResponse.quesAnsDetailArray[#{i}].metaData"]=questionsArray[i]['metaData']
+          params["userResponse.quesAnsDetailArray[#{i}].question"]=questionsArray[i]['question']
+          params["userResponse.quesAnsDetailArray[#{i}].questionFieldType"]=questionsArray[i]['questionFieldType']
+          i += 1
+        end
       end
 
       user_session_execute_api '/jsonsdk/Refresh/putMFARequestForSite', params

@@ -372,6 +372,127 @@ describe 'the yodlee api client integration tests', integration: true do
             after { api.unregister_user }
           end
         end
+
+        context 'Given a user attempting to add a site with Security Question and Answer MFA' do
+          context 'When #put_mfa_request_for_site is called the response' do
+            subject {
+              api.cobranded_login
+              response = api.login_or_register_user "testuser#{rand(100...200)}", 'testpassword143', 'test@test.com'
+
+              dag_sqa_login_form['componentList'][0]['value'] = 'yodlicious1.site16486.1'
+              dag_sqa_login_form['componentList'][1]['value'] = 'site16486.1'
+
+              response = api.add_site_account(16486, dag_sqa_login_form)
+              expect(response).to be_success
+
+              expect(response.body['siteRefreshInfo']['siteRefreshMode']['refreshMode']).to eq('MFA')
+              site_account_id = response.body['siteAccountId']
+              response = api.get_mfa_response_for_site_and_wait site_account_id, 2
+              # {
+              #   "isMessageAvailable":true,
+              #   "fieldInfo":{
+              #     "questionAndAnswerValues":[
+              #       {
+              #         "question":"What is the name of your state?",
+              #         "questionFieldType":"label",
+              #         "responseFieldType":"text",
+              #         "isRequired":"true",
+              #         "sequence":1,
+              #         "metaData":"QUESTION_1"
+              #       },
+              #       {
+              #         "question":"What is the name of your first school",
+              #         "questionFieldType":"label",
+              #         "responseFieldType":"text",
+              #         "isRequired":"true",
+              #         "sequence":2,
+              #         "metaData":"QUESTION_2"
+              #       }
+              #     ],
+              #     "numOfMandatoryQuestions":-1
+              #   },
+              #   "timeOutTime":96180,
+              #   "itemId":0,
+              #   "memSiteAccId":11025687,
+              #   "retry":false
+              # }
+              expect(response.body['isMessageAvailable']).to be_truthy
+
+              field_info = response.body['fieldInfo']
+              field_info['questionAndAnswerValues'][0]['value'] = 'Texas'
+              field_info['questionAndAnswerValues'][1]['value'] = 'w3schools'
+              api.put_mfa_request_for_site site_account_id, :MFAQuesAnsResponse, field_info
+            }
+
+            it 'is expected be a valid response' do
+              is_expected.to be_kind_of(Yodlicious::Response)
+              is_expected.to be_success
+              expect(subject.body['primitiveObj']).to be_truthy
+            end
+
+            after { api.unregister_user }
+          end
+        end
+
+        context 'Given a user attempting to add a site with Captcha MFA' do
+          context 'When #put_mfa_request_for_site is called the response' do
+            subject {
+              api.cobranded_login
+              response = api.login_or_register_user "testuser#{rand(100...200)}", 'testpassword143', 'test@test.com'
+
+              dag_sqa_login_form['componentList'][0]['value'] = 'yodlicious1.site18769.1'
+              dag_sqa_login_form['componentList'][1]['value'] = 'site18769.1'
+
+              response = api.add_site_account(18769, dag_sqa_login_form)
+              expect(response).to be_success
+
+              expect(response.body['siteRefreshInfo']['siteRefreshMode']['refreshMode']).to eq('MFA')
+              site_account_id = response.body['siteAccountId']
+              response = api.get_mfa_response_for_site_and_wait site_account_id, 2
+              # {
+              #   "isMessageAvailable":true,
+              #   "fieldInfo":{
+              #     "questionAndAnswerValues":[
+              #       {
+              #         "question":"What is the name of your state?",
+              #         "questionFieldType":"label",
+              #         "responseFieldType":"text",
+              #         "isRequired":"true",
+              #         "sequence":1,
+              #         "metaData":"QUESTION_1"
+              #       },
+              #       {
+              #         "question":"What is the name of your first school",
+              #         "questionFieldType":"label",
+              #         "responseFieldType":"text",
+              #         "isRequired":"true",
+              #         "sequence":2,
+              #         "metaData":"QUESTION_2"
+              #       }
+              #     ],
+              #     "numOfMandatoryQuestions":-1
+              #   },
+              #   "timeOutTime":96180,
+              #   "itemId":0,
+              #   "memSiteAccId":11025687,
+              #   "retry":false
+              # }
+              expect(response.body['isMessageAvailable']).to be_truthy
+
+              field_info = response.body['fieldInfo']
+              field_info['value'] = "monkeys"
+              api.put_mfa_request_for_site site_account_id, :MFAImageResponse, field_info
+            }
+
+            it 'is expected be a valid response' do
+              is_expected.to be_kind_of(Yodlicious::Response)
+              is_expected.to be_success
+              expect(subject.body['primitiveObj']).to be_truthy
+            end
+
+            after { api.unregister_user }
+          end
+        end
       end
     end
   end
@@ -677,45 +798,48 @@ describe 'the yodlee api client integration tests', integration: true do
     }
   }
 
-  let(:dag_mfa_login_form) {
+  let(:dag_sqa_login_form) {
     JSON.parse('{
-      "conjunctionOp" : 
-      { 
-        "conjuctionOp" : 1
+      "conjunctionOp":{
+        "conjuctionOp":1
       },
-      "componentList" : [
+      "componentList":[
         {
-          "valueIdentifier" : "LOGIN",
-           "valueMask" : "LOGIN_FIELD",
-           "fieldType" : {"typeName" : "IF_LOGIN"},
-           "size" : 20,
-           "maxlength" : 40,
-           "name" : "LOGIN",
-           "displayName" : "Catalog",
-           "isEditable" : true,
-           "isOptional" : false,
-           "isEscaped" : false,
-           "helpText" : "150970",
-           "isOptionalMFA" : false,
-           "isMFA" : false
+          "valueIdentifier":"LOGIN",
+          "valueMask":"LOGIN_FIELD",
+          "fieldType":{
+            "typeName":"IF_LOGIN"
+          },
+          "size":20,
+          "maxlength":40,
+          "name":"LOGIN",
+          "displayName":"Catalog",
+          "isEditable":true,
+          "isOptional":false,
+          "isEscaped":false,
+          "helpText":"150978",
+          "isOptionalMFA":false,
+          "isMFA":false
         },
         {
-          "valueIdentifier" : "PASSWORD",
-          "valueMask" : "LOGIN_FIELD",
-          "fieldType" : {"typeName" : "IF_PASSWORD"},
-          "size" : 20,
-          "maxlength" : 40,
-          "name" : "PASSWORD",
-          "displayName" : "Password",
-          "isEditable" : true,
-          "isOptional" : false,
-          "isEscaped" : false,
-          "helpText" : "150971",
-          "isOptionalMFA" : false,
-          "isMFA" : false
+          "valueIdentifier":"PASSWORD",
+          "valueMask":"LOGIN_FIELD",
+          "fieldType":{
+            "typeName":"IF_PASSWORD"
+          },
+          "size":20,
+          "maxlength":40,
+          "name":"PASSWORD",
+          "displayName":"Password",
+          "isEditable":true,
+          "isOptional":false,
+          "isEscaped":false,
+          "helpText":"150979",
+          "isOptionalMFA":false,
+          "isMFA":false
         }
       ],
-      "defaultHelpText" : "16167"
+      "defaultHelpText":"16176"
     }')
   }
 end
