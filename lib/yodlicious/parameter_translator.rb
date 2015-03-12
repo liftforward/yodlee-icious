@@ -17,7 +17,7 @@ module Yodlicious
         params["credentialFields[#{i}].valueIdentifier"] = field['valueIdentifier']
         params["credentialFields[#{i}].valueMask"] = field['valueMask']
         params["credentialFields[#{i}].isEditable"] = field['isEditable']
-        params["credentialFields[#{i}].value"] = field['value']
+        params["credentialFields[#{i}].value"] = field['fieldValue']
 
         i += 1
       }

@@ -22,7 +22,7 @@ describe 'parameter translator' do
             'helpText' => 4710,
             'isOptionalMFA' => false,
             'isMFA' => false,
-            'value' => 'kanyewest'
+            'fieldValue' => 'kanyewest'
           },
           {  
             'valueIdentifier' => 'PASSWORD',
@@ -40,7 +40,7 @@ describe 'parameter translator' do
             'helpText' => 11976,
             'isOptionalMFA' => false,
             'isMFA' => false,
-            'value' => 'iLoveTheGrammys'
+            'fieldValue' => 'iLoveTheGrammys'
           }
         ]
       }

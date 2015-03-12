@@ -232,8 +232,8 @@ describe 'the yodlee api client integration tests', integration: true do
 
       context 'When a invalid username and password for an account is added' do
         before {
-          dag_login_form['componentList'][0]['value'] = 'invalid_username'
-          dag_login_form['componentList'][1]['value'] = 'invalid_password'
+          dag_login_form['componentList'][0]['fieldValue'] = 'invalid_username'
+          dag_login_form['componentList'][1]['fieldValue'] = 'invalid_password'
         }
         subject { api.add_site_account_and_wait(16441, dag_login_form, seconds_between_retry, retry_count) }
 
@@ -248,8 +248,8 @@ describe 'the yodlee api client integration tests', integration: true do
 
       context 'When a valid username and password for an account is added' do
         before {
-          dag_login_form['componentList'][0]['value'] = 'yodlicious.site16441.1'
-          dag_login_form['componentList'][1]['value'] = 'site16441.1'
+          dag_login_form['componentList'][0]['fieldValue'] = 'yodlicious.site16441.1'
+          dag_login_form['componentList'][1]['fieldValue'] = 'site16441.1'
         }
         subject { api.add_site_account_and_wait(16441, dag_login_form, seconds_between_retry, retry_count) }
 
@@ -272,8 +272,8 @@ describe 'the yodlee api client integration tests', integration: true do
             api.cobranded_login
             response = api.login_or_register_user "testuser#{rand(100...200)}", 'testpassword143', 'test@test.com'
 
-            dag_fmfa_login_form['componentList'][0]['value'] = 'yodlicious1.site16445.1'
-            dag_fmfa_login_form['componentList'][1]['value'] = 'site16445.1'
+            dag_fmfa_login_form['componentList'][0]['fieldValue'] = 'yodlicious1.site16445.1'
+            dag_fmfa_login_form['componentList'][1]['fieldValue'] = 'site16445.1'
 
             response = api.add_site_account_and_wait(16445, dag_fmfa_login_form)
             expect(response).to be_success
@@ -302,8 +302,8 @@ describe 'the yodlee api client integration tests', integration: true do
             api.cobranded_login
             response = api.login_or_register_user "testuser#{rand(100...200)}", 'testpassword143', 'test@test.com'
 
-            dag_fmfa_login_form['componentList'][0]['value'] = 'yodlicious1.site16445.1'
-            dag_fmfa_login_form['componentList'][1]['value'] = 'site16445.1'
+            dag_fmfa_login_form['componentList'][0]['fieldValue'] = 'yodlicious1.site16445.1'
+            dag_fmfa_login_form['componentList'][1]['fieldValue'] = 'site16445.1'
 
             response = api.add_site_account_and_wait(16445, dag_fmfa_login_form)
             expect(response).to be_success
@@ -334,8 +334,8 @@ describe 'the yodlee api client integration tests', integration: true do
               api.cobranded_login
               response = api.login_or_register_user "testuser#{rand(100...200)}", 'testpassword143', 'test@test.com'
 
-              dag_fmfa_login_form['componentList'][0]['value'] = 'yodlicious1.site16445.1'
-              dag_fmfa_login_form['componentList'][1]['value'] = 'site16445.1'
+              dag_fmfa_login_form['componentList'][0]['fieldValue'] = 'yodlicious1.site16445.1'
+              dag_fmfa_login_form['componentList'][1]['fieldValue'] = 'site16445.1'
 
               response = api.add_site_account_and_wait(16445, dag_fmfa_login_form)
               expect(response).to be_success
@@ -359,7 +359,7 @@ describe 'the yodlee api client integration tests', integration: true do
               expect(response.body['isMessageAvailable']).to be_truthy
 
               field_info = response.body['fieldInfo']
-              field_info['value'] = "monkeys"
+              field_info['fieldValue'] = "monkeys"
               api.put_mfa_request_for_site site_account_id, :MFATokenResponse, field_info
             }
 
@@ -379,8 +379,8 @@ describe 'the yodlee api client integration tests', integration: true do
               api.cobranded_login
               response = api.login_or_register_user "testuser#{rand(100...200)}", 'testpassword143', 'test@test.com'
 
-              dag_sqa_login_form['componentList'][0]['value'] = 'yodlicious1.site16486.1'
-              dag_sqa_login_form['componentList'][1]['value'] = 'site16486.1'
+              dag_sqa_login_form['componentList'][0]['fieldValue'] = 'yodlicious1.site16486.1'
+              dag_sqa_login_form['componentList'][1]['fieldValue'] = 'site16486.1'
 
               response = api.add_site_account(16486, dag_sqa_login_form)
               expect(response).to be_success
@@ -419,8 +419,8 @@ describe 'the yodlee api client integration tests', integration: true do
               expect(response.body['isMessageAvailable']).to be_truthy
 
               field_info = response.body['fieldInfo']
-              field_info['questionAndAnswerValues'][0]['value'] = 'Texas'
-              field_info['questionAndAnswerValues'][1]['value'] = 'w3schools'
+              field_info['questionAndAnswerValues'][0]['fieldValue'] = 'Texas'
+              field_info['questionAndAnswerValues'][1]['fieldValue'] = 'w3schools'
               api.put_mfa_request_for_site site_account_id, :MFAQuesAnsResponse, field_info
             }
 
@@ -440,8 +440,8 @@ describe 'the yodlee api client integration tests', integration: true do
               api.cobranded_login
               response = api.login_or_register_user "testuser#{rand(100...200)}", 'testpassword143', 'test@test.com'
 
-              dag_sqa_login_form['componentList'][0]['value'] = 'yodlicious1.site18769.1'
-              dag_sqa_login_form['componentList'][1]['value'] = 'site18769.1'
+              dag_sqa_login_form['componentList'][0]['fieldValue'] = 'yodlicious1.site18769.1'
+              dag_sqa_login_form['componentList'][1]['fieldValue'] = 'site18769.1'
 
               response = api.add_site_account(18769, dag_sqa_login_form)
               expect(response).to be_success
@@ -480,7 +480,7 @@ describe 'the yodlee api client integration tests', integration: true do
               expect(response.body['isMessageAvailable']).to be_truthy
 
               field_info = response.body['fieldInfo']
-              field_info['value'] = "monkeys"
+              field_info['fieldValue'] = "monkeys"
               api.put_mfa_request_for_site site_account_id, :MFAImageResponse, field_info
             }
 
@@ -566,8 +566,8 @@ describe 'the yodlee api client integration tests', integration: true do
       before { 
         api.cobranded_login
         api.login_or_register_user 'testuser_with_transactions@liftforward.com', 'testpassword143', 'testuser_with_transactions@liftforward.com'
-        dag_login_form['componentList'][0]['value'] = 'yodlicious.site16441.1'
-        dag_login_form['componentList'][1]['value'] = 'site16441.1'
+        dag_login_form['componentList'][0]['fieldValue'] = 'yodlicious.site16441.1'
+        dag_login_form['componentList'][1]['fieldValue'] = 'site16441.1'
         api.add_site_account_and_wait(16441, dag_login_form)
       }
 

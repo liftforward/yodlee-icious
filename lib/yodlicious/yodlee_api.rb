@@ -212,15 +212,15 @@ module Yodlicious
 
       case mfa_type.to_sym
       when :MFATokenResponse
-        params['userResponse.token']=field_info['value']
+        params['userResponse.token']=field_info['fieldValue']
       when :MFAImageResponse
-        params['userResponse.imageString']=field_info['value']
+        params['userResponse.imageString']=field_info['fieldValue']
       when :MFAQuesAnsResponse
         questionsArray = field_info['questionAndAnswerValues']
         i = 0
         while i < questionsArray.length do
           puts "questionsArray= #{questionsArray[i].class} #{i}"
-          params["userResponse.quesAnsDetailArray[#{i}].answer"]=questionsArray[i]['value']
+          params["userResponse.quesAnsDetailArray[#{i}].answer"]=questionsArray[i]['fieldValue']
           params["userResponse.quesAnsDetailArray[#{i}].answerFieldType"]=questionsArray[i]['answerFieldType']
           params["userResponse.quesAnsDetailArray[#{i}].metaData"]=questionsArray[i]['metaData']
           params["userResponse.quesAnsDetailArray[#{i}].question"]=questionsArray[i]['question']
