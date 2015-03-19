@@ -146,27 +146,31 @@ module Yodlicious
     end
 
 
-    def add_site_account_and_wait site_id, site_login_form, refresh_interval = 0.5, refresh_trys = 5
-      response = add_site_account(site_id, site_login_form)
+    def add_site_account_and_wait site_id, site_login_form, refresh_interval = 0.5, max_trys = 5
+      add_site_account_response = add_site_account(site_id, site_login_form)
 
-      #TODO validate response with assert
-      if response.success?
-
-        if normal_site_refresh_in_progress?(response.body['siteRefreshInfo'])
-
-          site_account_id = response.body['siteAccountId']
-          trys = 1
+      if add_site_account_response.success?
+        if normal_site_refresh_in_progress?(add_site_account_response.body['siteRefreshInfo'])
+          site_account_id = add_site_account_response.body['siteAccountId']
+          try = 1
           begin
-            info_log "try #{trys} to get refresh_info for #{site_id}"
-            trys += 1
+            debug_log "try #{try} to get refresh_info for #{site_id}"
+            try += 1
             sleep(refresh_interval)
             refresh_info_response = get_site_refresh_info site_account_id
-            response.body['siteRefreshInfo'] = refresh_info_response.body unless refresh_info_response.fail?
-          end until (refresh_info_response.success? && !normal_site_refresh_in_progress?(refresh_info_response.body)) || trys > refresh_trys
+            add_site_account_response.body['siteRefreshInfo'] = refresh_info_response.body unless refresh_info_response.fail?
+          end while should_retry_get_site_refresh_info? refresh_info_response, try, max_trys
         end
 
-        response
+        add_site_account_response
       end
+    end
+
+    def should_retry_get_site_refresh_info? response, try, max_trys
+      return response.success? && try < max_trys && (response.body['code'] == 801  || (response.body['code'] == 0 && 
+        response.body['siteRefreshStatus']['siteRefreshStatus'] != 'REFRESH_COMPLETED' &&
+        response.body['siteRefreshStatus']['siteRefreshStatus'] != 'REFRESH_TIMED_OUT' &&
+        response.body['siteRefreshStatus']['siteRefreshStatus'] != 'LOGIN_SUCCESS' ))
     end
 
     def normal_site_refresh_in_progress? site_refresh_info
@@ -181,27 +185,19 @@ module Yodlicious
     def get_mfa_response_for_site_and_wait site_account_id, refresh_interval=0.5, max_trys=5
       response = get_mfa_response_for_site site_account_id
 
-      # {
-      #   "isMessageAvailable"=>true,
-      #   "fieldInfo"=>{"questionAndAnswerValues"=>[], "numOfMandatoryQuestions"=>-1},
-      #   "timeOutTime"=>39740,
-      #   "itemId"=>0,
-      #   "errorCode"=>0,
-      #   "memSiteAccId"=>10992387,
-      #   "retry"=>false
-      # }
-
-      if response.success?
-        try = 1
-        while response.body['errorCode'].nil? && response.body['isMessageAvailable'] != true && try < max_trys
-          info_log "try #{try} to get mfa message for #{site_account_id}"
-          try += 1
-          sleep(refresh_interval)
-          response = get_mfa_response_for_site site_account_id
-        end
+      try = 1
+      while should_retry_get_mfa_response? response, try, max_trys
+        debug_log "try #{try} to get mfa message for #{site_account_id}"
+        try += 1
+        sleep(refresh_interval)
+        response = get_mfa_response_for_site site_account_id
       end
 
       response
+    end
+
+    def should_retry_get_mfa_response? response, try, max_trys
+      return response.success? && response.body['errorCode'].nil? && response.body['isMessageAvailable'] != true && try < max_trys
     end
 
     def put_mfa_request_for_site site_account_id, mfa_type, field_info
@@ -341,7 +337,7 @@ module Yodlicious
     end
 
     def debug_log msg
-      logger.info msg
+      logger.debug msg
     end
 
     def info_log msg

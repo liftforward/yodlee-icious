@@ -3,7 +3,7 @@ require "yodlicious/config"
 
 describe Yodlicious::YodleeApi do
 
-  context 'Given a new uninitialized YodleeApi objecvt' do
+  context 'Given a new uninitialized YodleeApi object' do
     before {
       Yodlicious::Config.base_url=nil
       Yodlicious::Config.cobranded_username=nil
@@ -231,6 +231,109 @@ describe Yodlicious::YodleeApi do
 
       it 'the socks proxy is not used' do
         expect(subject.use_socks?).to eq(false)
+      end
+    end
+  end
+
+  describe '#should_retry_get_mfa_response?' do
+    let (:api) { Yodlicious::YodleeApi.new }
+    let (:response) { double("response") }
+
+    context 'Given get mfa response has failed' do
+      before { allow(response).to receive(:success?).and_return(false) }
+      subject { api.should_retry_get_mfa_response?(response,0,1) }
+      it { is_expected.to be_falsy }
+    end
+    
+    context 'Given get mfa response is success' do
+      before { allow(response).to receive(:success?).and_return(true) }
+
+      context 'Given an error code is returned' do
+        before { allow(response).to receive(:body).and_return({ 'errorCode' => 100 }) }
+        subject { api.should_retry_get_mfa_response?(response,0,1) }
+        it { is_expected.to be_falsy }
+      end
+
+      context 'Given no error code is returned' do
+        context 'Given the MFA message is available' do
+          before { allow(response).to receive(:body).and_return({ 'isMessageAvailable' => true }) }
+          subject { api.should_retry_get_mfa_response?(response,0,1) }
+          it { is_expected.to be_falsy }
+        end
+
+        context 'Given the MFA message is not available' do
+          before { allow(response).to receive(:body).and_return({ 'isMessageAvailable' => false }) }
+          context 'Given all the trys have been used up' do
+            subject { api.should_retry_get_mfa_response?(response,1,1) }
+            it { is_expected.to be_falsy }
+          end
+
+          context 'Given the trys have not been used up' do
+            subject { api.should_retry_get_mfa_response?(response,0,2) }
+            it { is_expected.to be_truthy }
+          end
+        end
+      end
+    end
+  end
+
+  describe '#should_retry_get_site_refresh_info' do
+    let (:api) { Yodlicious::YodleeApi.new }
+    let (:response) { double("response") }
+
+    context 'Given get mfa response has failed' do
+      before { allow(response).to receive(:success?).and_return(false) }
+      subject { api.should_retry_get_site_refresh_info?(response,0,1) }
+      it { is_expected.to be_falsy }
+    end
+
+    context 'Given get mfa response is success' do
+      before { allow(response).to receive(:success?).and_return(true) }
+
+      context 'Given an code 801 is returned' do
+        before { allow(response).to receive(:body).and_return({ 'code' => 801 }) }
+        subject { api.should_retry_get_site_refresh_info?(response,0,1) }
+        it { is_expected.to be_truthy }
+      end
+
+      context 'Given not 801 and not 0 code is returned' do
+        before { allow(response).to receive(:body).and_return({ 'code' => 5 }) }
+        subject { api.should_retry_get_site_refresh_info?(response,0,1) }
+        it { is_expected.to be_falsy }
+      end
+
+      context 'Given a code 0 is returned' do
+        context 'Given a siteRefreshStatus of REFRESH_COMPLETED' do
+          before { allow(response).to receive(:body).and_return({ 'code' => 0, "siteRefreshStatus" => { "siteRefreshStatus" => "REFRESH_COMPLETED" }}) }
+          subject { api.should_retry_get_site_refresh_info?(response,0,1) }
+          it { is_expected.to be_falsy }
+        end
+
+        context 'Given a siteRefreshStatus of REFRESH_TIMED_OUT' do
+          before { allow(response).to receive(:body).and_return({ 'code' => 0, "siteRefreshStatus" => { "siteRefreshStatus" => "REFRESH_TIMED_OUT" }}) }
+          subject { api.should_retry_get_site_refresh_info?(response,0,1) }
+          it { is_expected.to be_falsy }
+        end
+
+        context 'Given a siteRefreshStatus of LOGIN_SUCCESS' do
+          before { allow(response).to receive(:body).and_return({ 'code' => 0, "siteRefreshStatus" => { "siteRefreshStatus" => "LOGIN_SUCCESS" }}) }
+          subject { api.should_retry_get_site_refresh_info?(response,0,1) }
+          it { is_expected.to be_falsy }
+        end
+
+        context 'Given a siteRefreshStatus of REFRESH_TRIGGERED' do
+          before { allow(response).to receive(:body).and_return({ 'code' => 0, "siteRefreshStatus" => { "siteRefreshStatus" => "REFRESH_TRIGGERED" }}) }
+          subject { api.should_retry_get_site_refresh_info?(response,0,1) }
+          it { is_expected.to be_truthy }
+        end
+
+        context 'Given a siteRefreshStatus of REFRESH_TRIGGERED' do
+          before { allow(response).to receive(:body).and_return({ 'code' => 0, "siteRefreshStatus" => { "siteRefreshStatus" => "REFRESH_TRIGGERED" }}) }
+          context 'Given trys have been used up' do
+            subject { api.should_retry_get_site_refresh_info?(response,1,1) }
+            it { is_expected.to be_falsy }
+          end
+        end
       end
     end
   end
