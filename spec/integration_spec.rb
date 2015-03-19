@@ -221,7 +221,7 @@ describe 'the yodlee api client integration tests', integration: true do
       }
 
       let(:seconds_between_retry) { 3 }
-      let(:retry_count) { 10 }
+      let(:max_retrys) { 10 }
 
       after {
         begin
@@ -235,7 +235,7 @@ describe 'the yodlee api client integration tests', integration: true do
           dag_login_form['componentList'][0]['fieldValue'] = 'invalid_username'
           dag_login_form['componentList'][1]['fieldValue'] = 'invalid_password'
         }
-        subject { api.add_site_account_and_wait(16441, dag_login_form, seconds_between_retry, retry_count) }
+        subject { api.add_site_account_and_wait(16441, dag_login_form, seconds_between_retry, max_retrys) }
 
         it 'is expected to respond with siteRefreshStatus=LOGIN_FAILURE and refreshMode=NORMAL a siteAccountId' do
           # puts JSON.pretty_generate(subject.body)
@@ -251,7 +251,7 @@ describe 'the yodlee api client integration tests', integration: true do
           dag_login_form['componentList'][0]['fieldValue'] = 'yodlicious.site16441.1'
           dag_login_form['componentList'][1]['fieldValue'] = 'site16441.1'
         }
-        subject { api.add_site_account_and_wait(16441, dag_login_form, seconds_between_retry, retry_count) }
+        subject { api.add_site_account_and_wait(16441, dag_login_form, seconds_between_retry, max_retrys) }
 
         it 'is expected to respond with siteRefreshStatus=LOGIN_SUCCESS and refreshMode=NORMAL a siteAccountId' do
           is_expected.to be_success
