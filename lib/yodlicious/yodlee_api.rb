@@ -267,7 +267,7 @@ module Yodlicious
         'transactionSearchRequest.lowerFetchLimit' => 1,
         'transactionSearchRequest.higherFetchLimit' => 500,
         'transactionSearchRequest.resultRange.startNumber' => 1,
-        'transactionSearchRequest.resultRange.endNumber' => 10,
+        'transactionSearchRequest.resultRange.endNumber' => 500,
         'transactionSearchRequest.searchClients.clientId' => 1,
         'transactionSearchRequest.searchClients.clientName' => 'DataSearchService',
         'transactionSearchRequest.ignoreUserInput' => true,
@@ -281,6 +281,15 @@ module Yodlicious
       }.merge(options)
 
       user_session_execute_api "/jsonsdk/TransactionSearchService/executeUserSearchRequest", params
+    end
+
+    def get_user_transactions search_identifier, start_number, end_number
+      params = {
+        'searchFetchRequest.searchIdentifier.identifier' => search_identifier,
+        'searchFetchRequest.searchResultRange.startNumber' => start_number,
+        'searchFetchRequest.searchResultRange.endNumber' => end_number
+      }
+      user_session_execute_api '/jsonsdk/TransactionSearchService/getUserTransactions', params
     end
 
     def cobranded_session_execute_api uri, params = {}
