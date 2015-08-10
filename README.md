@@ -1,6 +1,6 @@
 ![image of yodlicious](https://github.com/liftforward/yodlicious/blob/master/yodlicious.png)
 
-# Yodlicious [ ![Codeship Status for liftforward/yodlicious](https://codeship.com/projects/71603f00-9393-0132-dcd0-1a9a253548c0/status?branch=master)](https://codeship.com/projects/62288)
+# Yodlicious [ ![Codeship Status for liftforward/yodlicious](https://codeship.com/projects/71603f00-9393-0132-dcd0-1a9a253548c0/status?branch=master)](https://codeship.com/projects/62288) [![Code Climate](https://codeclimate.com/repos/556dcf7fe30ba00903005872/badges/9398ac76dbcae2084eeb/gpa.svg)](https://codeclimate.com/repos/556dcf7fe30ba00903005872/feed) [![Test Coverage](https://codeclimate.com/repos/556dcf7fe30ba00903005872/badges/9398ac76dbcae2084eeb/coverage.svg)](https://codeclimate.com/repos/556dcf7fe30ba00903005872/coverage)
 
 Yodlicisous is a ruby gem wrapping the Yodlee REST(ish) API. We had to build this for our integration with Yodlee which was somewhat more painful than it should have been so we figured we share to be a good neighbor.
 
