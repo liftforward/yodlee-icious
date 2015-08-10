@@ -3,6 +3,9 @@ unless defined?(SPEC_HELPER_LOADED)
 
   require "yodlicious"
   require 'dotenv'
+  require "codeclimate-test-reporter"
+  
+  CodeClimate::TestReporter.start
   Dotenv.load
 
   RSpec.configure do |config|

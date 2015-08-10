@@ -232,6 +232,14 @@ module Yodlicious
       user_session_execute_api '/jsonsdk/Refresh/getSiteRefreshInfo', { memSiteAccId: site_account_id }
     end
 
+    def start_site_refresh site_account_id, refresh_priority = 1
+      params = {
+        'memSiteAccId' => site_account_id,
+        'refreshParameters.refreshPriority' => refresh_priority
+      }
+      user_session_execute_api '/jsonsdk/Refresh/startSiteRefresh', params
+    end
+
     def get_content_service_info_by_routing_number routing_number, no_trim = true
       params = {
         routingNumber: routing_number,
