@@ -19,7 +19,7 @@ describe 'the yodlee api client integration tests', integration: true do
     }
   }
 
-  describe 'the yodlee apis cobranded login endpoint' do
+  describe 'the yodlee apis cobranded login endpoint', :focus do
     context 'Given valid cobranded credentials and base_url' do
       context 'When /authenticate/coblogin is called the return' do
         subject { api.cobranded_login }
@@ -209,62 +209,7 @@ describe 'the yodlee api client integration tests', integration: true do
     end
   end
 
-  #todo reorganize this spec to use given-when-then
-  describe '#add_site_account_and_wait' do
-    context 'Given a user who has registered and does not have any accounts' do
-      before { 
-        api.cobranded_login
-        # api.user_login 'testuser', 'testpassword143'
-        # api.unregister_user
-        # api.logout_user
-        api.register_user "testuser#{rand(100..999)}", 'testpassword143', 'test@test.com'
-      }
-
-      let(:seconds_between_retry) { 3 }
-      let(:max_retrys) { 10 }
-
-      after {
-        begin
-          api.unregister_user
-        rescue
-        end
-      }
-
-      context 'When a invalid username and password for an account is added' do
-        before {
-          dag_login_form['componentList'][0]['fieldValue'] = 'invalid_username'
-          dag_login_form['componentList'][1]['fieldValue'] = 'invalid_password'
-        }
-        subject { api.add_site_account_and_wait(16441, dag_login_form, seconds_between_retry, max_retrys) }
-
-        it 'is expected to respond with siteRefreshStatus=LOGIN_FAILURE and refreshMode=NORMAL a siteAccountId' do
-          # puts JSON.pretty_generate(subject.body)
-          is_expected.to be_success
-          expect(subject.body['siteRefreshInfo']['siteRefreshStatus']['siteRefreshStatus']).to eq('LOGIN_FAILURE')
-          expect(subject.body['siteRefreshInfo']['siteRefreshMode']['refreshMode']).to eq('NORMAL')
-          expect(subject.body['siteAccountId']).not_to be_nil
-        end
-      end
-
-      context 'When a valid username and password for an account is added' do
-        before {
-          dag_login_form['componentList'][0]['fieldValue'] = 'yodlicious.site16441.1'
-          dag_login_form['componentList'][1]['fieldValue'] = 'site16441.1'
-        }
-        subject { api.add_site_account_and_wait(16441, dag_login_form, seconds_between_retry, max_retrys) }
-
-        it 'is expected to respond with siteRefreshStatus=LOGIN_SUCCESS and refreshMode=NORMAL a siteAccountId' do
-          is_expected.to be_success
-          expect(subject.body['siteRefreshInfo']['siteRefreshStatus']['siteRefreshStatus']).to eq('LOGIN_SUCCESS')
-          expect(subject.body['siteRefreshInfo']['siteRefreshMode']['refreshMode']).to eq('NORMAL')
-          expect(subject.body['siteAccountId']).not_to be_nil
-        end
-      end
-
-    end
-  end
-
-  describe '#get_mfa_response_for_site' do
+  describe '#get_mfa_response_for_site', :focus do
     context 'Given a valid cobranded credentials and base_url' do
       context 'Given a user who it logged into the api' do
         context 'When #get_mfa_response_for_site is called the response' do
@@ -305,7 +250,7 @@ describe 'the yodlee api client integration tests', integration: true do
             dag_fmfa_login_form['componentList'][0]['fieldValue'] = 'yodlicious1.site16445.1'
             dag_fmfa_login_form['componentList'][1]['fieldValue'] = 'site16445.1'
 
-            response = api.add_site_account_and_wait(16445, dag_fmfa_login_form)
+            response = api.add_site_account(16445, dag_fmfa_login_form)
             expect(response).to be_success
 
             expect(response.body['siteRefreshInfo']['siteRefreshMode']['refreshMode']).to eq('MFA')
@@ -337,7 +282,7 @@ describe 'the yodlee api client integration tests', integration: true do
               dag_fmfa_login_form['componentList'][0]['fieldValue'] = 'yodlicious1.site16445.1'
               dag_fmfa_login_form['componentList'][1]['fieldValue'] = 'site16445.1'
 
-              response = api.add_site_account_and_wait(16445, dag_fmfa_login_form)
+              response = api.add_site_account(16445, dag_fmfa_login_form)
               expect(response).to be_success
 
               expect(response.body['siteRefreshInfo']['siteRefreshMode']['refreshMode']).to eq('MFA')
@@ -568,7 +513,7 @@ describe 'the yodlee api client integration tests', integration: true do
         api.login_or_register_user 'testuser_with_transactions@liftforward.com', 'testpassword143', 'testuser_with_transactions@liftforward.com'
         dag_login_form['componentList'][0]['fieldValue'] = 'yodlicious.site16441.1'
         dag_login_form['componentList'][1]['fieldValue'] = 'site16441.1'
-        api.add_site_account_and_wait(16441, dag_login_form)
+        api.add_site_account(16441, dag_login_form)
       }
 
       context 'When a transaction search for all transactions is performed the result' do
