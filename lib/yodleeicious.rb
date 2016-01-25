@@ -4,11 +4,11 @@ require 'faraday'
 require 'socksify'
 require 'socksify/http'
 
-require File.dirname(__FILE__) + "/yodlicious/version"
-require File.dirname(__FILE__) + "/yodlicious/config"
-require File.dirname(__FILE__) + "/yodlicious/parameter_translator"
-require File.dirname(__FILE__) + "/yodlicious/response"
-require File.dirname(__FILE__) + "/yodlicious/yodlee_api"
+require File.dirname(__FILE__) + "/yodleeicious/version"
+require File.dirname(__FILE__) + "/yodleeicious/config"
+require File.dirname(__FILE__) + "/yodleeicious/parameter_translator"
+require File.dirname(__FILE__) + "/yodleeicious/response"
+require File.dirname(__FILE__) + "/yodleeicious/yodlee_api"
 
 class Faraday::Adapter::NetHttp
   def net_http_connection(env)

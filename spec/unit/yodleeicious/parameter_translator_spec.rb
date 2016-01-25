@@ -1,7 +1,7 @@
- require "yodlicious/parameter_translator"
+ require "yodleeicious/parameter_translator"
 
 describe 'parameter translator' do
-  subject { Yodlicious::ParameterTranslator.new }
+  subject { Yodleeicious::ParameterTranslator.new }
   context 'converting login params json to add site params' do
     let (:login_form) {
       {

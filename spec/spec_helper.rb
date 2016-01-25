@@ -6,9 +6,12 @@ end
 unless defined?(SPEC_HELPER_LOADED)
   SPEC_HELPER_LOADED = true
 
-  require "yodlicious"
+  require "yodleeicious"
   require 'dotenv'
   Dotenv.load
+
+  Yodleeicious::Config.logger = Logger.new("log/test.log")
+  Yodleeicious::Config.logger.level = Logger::DEBUG
 
   RSpec.configure do |config|
 
