@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Drew Nichols"]
   spec.email         = ["drew@liftforward.com"]
   spec.summary       = "Yodlee API Client Gem"
-  spec.description   = "Delicious Yodlee API Client Gem"
+  spec.description   = "Delicious Yodlee API Client Gem (formally Yodlicious)"
   spec.homepage      = "https://github.com/liftforward/yodlee-icious"
   spec.license       = "MIT"
 
