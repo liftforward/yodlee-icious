@@ -1,16 +1,16 @@
 # coding: utf-8
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'yodlicious/version'
+require 'yodleeicious/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = "yodlicious"
-  spec.version       = Yodlicious::VERSION
+  spec.name          = "yodlee-icious"
+  spec.version       = Yodleeicious::VERSION
   spec.authors       = ["Drew Nichols"]
   spec.email         = ["drew@liftforward.com"]
   spec.summary       = "Yodlee API Client Gem"
   spec.description   = "Delicious Yodlee API Client Gem"
-  spec.homepage      = "https://github.com/liftforward/yodlicious"
+  spec.homepage      = "https://github.com/liftforward/yodlee-icious"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files -z`.split("\x0")

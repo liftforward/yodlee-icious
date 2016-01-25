@@ -1,18 +1,18 @@
 
-# Yodlicious
+# Yodlee-icious
 [![Gem Version](https://badge.fury.io/rb/yodlicious.svg)](http://badge.fury.io/rb/yodlicious)  [![Code Climate](https://codeclimate.com/repos/556dcf7fe30ba00903005872/badges/9398ac76dbcae2084eeb/gpa.svg)](https://codeclimate.com/repos/556dcf7fe30ba00903005872/feed) [![Test Coverage](https://codeclimate.com/repos/556dcf7fe30ba00903005872/badges/9398ac76dbcae2084eeb/coverage.svg)](https://codeclimate.com/repos/556dcf7fe30ba00903005872/coverage)
-[ ![Codeship Status for liftforward/yodlicious](https://codeship.com/projects/71603f00-9393-0132-dcd0-1a9a253548c0/status?branch=master)](https://codeship.com/projects/62288)
+[ ![Codeship Status for liftforward/yodlee-icious](https://codeship.com/projects/71603f00-9393-0132-dcd0-1a9a253548c0/status?branch=master)](https://codeship.com/projects/62288)
 
-Yodlicisous is a ruby gem wrapping the Yodlee REST(ish) API. We had to build this for our integration with Yodlee which was somewhat more painful than it should have been so we figured we share to be a good neighbor.
+Yodleeicious is a ruby gem wrapping the Yodlee REST(ish) API. We had to build this for our integration with Yodlee which was somewhat more painful than it should have been so we figured we share to be a good neighbor.
 
-![image of yodlicious](https://github.com/liftforward/yodlicious/blob/master/yodlicious.png)
+![image of yodleeicious](https://github.com/liftforward/yodlee-icious/blob/master/yodlicious.png)
 
 ## Installation
 
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'yodlicious'
+gem 'yodlee-icious'
 ```
 
 And then execute:
@@ -21,7 +21,7 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install yodlicious
+    $ gem install yodlee-icious
 
 ## Usage
 
@@ -30,7 +30,7 @@ Or install it yourself as:
 We needed to use the Yodlee API both within a rails app and outside with multiple Yodlee connections concurrently. As such we provided both the option for a global default configuration and a instance specific configuration. For instance specific:
 
 ```ruby
-require "yodlicious"
+require "yodleeicious"
 
 config = {
   base_url: "https://consolidatedsdk.yodlee.com/yodsoap/srest/my-cobranded-path/v1.0",
@@ -38,27 +38,27 @@ config = {
   cobranded_password: "my-cobranded-password"
 }
 
-yodlee_api = Yodlicious::YodleeApi.new(config)
+yodlee_api = Yodleeicious::YodleeApi.new(config)
 
 ```
 When in a Rails app it can be more convenient to use a global default configuration. To use global defaults:
 
 ```ruby
-#/<myproject>/config/initializers/yodlicious.rb
-require 'yodlicious'
+#/<myproject>/config/initializers/yodleeicious.rb
+require 'yodleeicious'
 
-#setting default configurations for Yodlicious
-Yodlicious::Config.base_url = ENV['YODLEE_BASE_URL']
-Yodlicious::Config.cobranded_username = ENV['YODLEE_COBRANDED_USERNAME']
-Yodlicious::Config.cobranded_password = ENV['YODLEE_COBRANDED_PASSWORD']
+#setting default configurations for Yodleeicious
+Yodleeicious::Config.base_url = ENV['YODLEE_BASE_URL']
+Yodleeicious::Config.cobranded_username = ENV['YODLEE_COBRANDED_USERNAME']
+Yodleeicious::Config.cobranded_password = ENV['YODLEE_COBRANDED_PASSWORD']
 
-#setting yodlicious logger to use the Rails logger
-Yodlicious::Config.logger = Rails.logger
+#setting yodleeicious logger to use the Rails logger
+Yodleeicious::Config.logger = Rails.logger
 ```
 and wherever you want to use the api simply create a new one and it will pickup the global defaults. 
 
 ```ruby
-yodlee_api = Yodlicious::YodleeApi.new
+yodlee_api = Yodleeicious::YodleeApi.new
 ```
 If for any reason you need to, you can pass a hash into the constructor and it will use any provided hash values over the defaults. Note this is done on each value not the entire hash.
 
@@ -66,7 +66,7 @@ You can also update an existing instances of the YodleeApi's configuration with 
 
 ```ruby
 
-yodlee_api = Yodlicious::YodleeApi.new { base_url: 'http://yodlee.com/blablabla' }
+yodlee_api = Yodleeicious::YodleeApi.new { base_url: 'http://yodlee.com/blablabla' }
 
 yodlee_api.configure { base_url: 'https://secure.yodlee.com/blablabla }
 
@@ -90,19 +90,19 @@ config = {
   proxy_url: "https://my-proxy-server-on-the-whitelist:my=proxy-port/"
 }
 
-yodlee_api = Yodlicious::YodleeApi.new(config)
+yodlee_api = Yodleeicious::YodleeApi.new(config)
 ```
 
 ## Working with the API
 
-The Yodlee Api responses are somewhat varied (especially the errors) and as such we build Yodlicious as a pretty thin layer around their request/response model. We didn't attempt to map all their JSON responses into models or anything fancy like that. Instead we simply created a method for each API endpoint which takes the required parameters and return a response object. That said, Response object does provide some conveniences to make up for the inconsistent delivery of errors from Yodlee's APIs.
+The Yodlee Api responses are somewhat varied (especially the errors) and as such we build Yodleeicious as a pretty thin layer around their request/response model. We didn't attempt to map all their JSON responses into models or anything fancy like that. Instead we simply created a method for each API endpoint which takes the required parameters and return a response object. That said, Response object does provide some conveniences to make up for the inconsistent delivery of errors from Yodlee's APIs.
 
 ### Starting your cobranded session
 
 Once you've configured an instance of the YodleeAPI the first thing you must do is start a Yodlee cobranded session. This is also a good rails console test to see if everything is configured correctly: 
 
 ```ruby
-pry(main)> yodlee_api = Yodlicious::YodleeApi.new
+pry(main)> yodlee_api = Yodleeicious::YodleeApi.new
 pry(main)> response = yodlee_api.cobranded_login
 pry(main)> response.success?
 => true
@@ -155,7 +155,7 @@ TODO
 
 ## Contributing
 
-1. Fork it ( https://github.com/liftforward/yodlicious/fork )
+1. Fork it ( https://github.com/liftforward/yodlee-icious/fork )
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
@@ -163,11 +163,11 @@ TODO
 
 ### Running the integration suite
 
-To run the Yodlicious integration tests you'll need an approved yodlee account. This is more than the one offered here [https://devnow.yodlee.com/user/register]. (Some of the integration suite will work against the devnow APIs but not all. On my todo list is to separate them out to make testing easier.) The integration suite expects these values to be set in the following environment variables:
+To run the Yodlee-icious integration tests you'll need an approved yodlee account. This is more than the one offered here [https://devnow.yodlee.com/user/register]. (Some of the integration suite will work against the devnow APIs but not all. On my todo list is to separate them out to make testing easier.) The integration suite expects these values to be set in the following environment variables:
 
 ```
 YODLEE_BASE_URL="https://consolidatedsdk.yodlee.com/yodsoap/srest/my-cobranded-path/v1.0"
 YODLEE_COBRANDED_USERNAME="my-cobranded-user"
 YODLEE_COBRANDED_PASSWORD="my-cobranded-password"
-YODLICIOUS_PROXY_URL="https://my-proxy-server-on-the-whitelist:my=proxy-port/"
+YODLEEICIOUS_PROXY_URL="https://my-proxy-server-on-the-whitelist:my=proxy-port/"
 ```

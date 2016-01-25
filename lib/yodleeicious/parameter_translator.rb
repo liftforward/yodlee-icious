@@ -1,4 +1,4 @@
-module Yodlicious
+module Yodleeicious
   class ParameterTranslator
     def site_login_form_to_add_site_account_params site_login_form
       

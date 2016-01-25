@@ -1,6 +1,6 @@
-require "yodlicious"
+require "yodleeicious"
 
-describe Yodlicious::Response do
+describe Yodleeicious::Response do
   let(:error_response_1) {
     { 
       "errorOccurred"=>"true", 
@@ -23,7 +23,7 @@ describe Yodlicious::Response do
   }
 
   context 'When the error_response is the errorOccured syntax' do
-    subject { Yodlicious::Response.new error_response_1 }
+    subject { Yodleeicious::Response.new error_response_1 }
     it { is_expected.not_to be_success }
     it { is_expected.to be_fail }
     it "is expected to return error of InvalidArgumentValueException" do
@@ -32,7 +32,7 @@ describe Yodlicious::Response do
   end
 
   context 'When the error_response is the Error : ["errorDetail"] syntax' do
-    subject { Yodlicious::Response.new error_response_2 }
+    subject { Yodleeicious::Response.new error_response_2 }
     it { is_expected.not_to be_success }
     it { is_expected.to be_fail }
     it "is expected to return error of Invalid User Credentials" do
@@ -41,7 +41,7 @@ describe Yodlicious::Response do
   end
 
   context 'When operation is a success and returns hash' do
-    subject { Yodlicious::Response.new success_hash_response }
+    subject { Yodleeicious::Response.new success_hash_response }
     it { is_expected.to be_success }
     it { is_expected.not_to be_fail }
     it 'is expected to return nil for error' do
@@ -50,7 +50,7 @@ describe Yodlicious::Response do
   end
 
   context 'When operation is a success and return array' do
-    subject { Yodlicious::Response.new success_array_response }
+    subject { Yodleeicious::Response.new success_array_response }
     it { is_expected.to be_success }
     it { is_expected.not_to be_fail }
     it 'is expected to return nil for error' do

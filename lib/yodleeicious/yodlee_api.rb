@@ -1,7 +1,7 @@
 require 'json'
 
 
-module Yodlicious
+module Yodleeicious
   class YodleeApi
     attr_reader :base_url, :cobranded_username, :cobranded_password, :proxy_url, :logger
 
@@ -11,11 +11,11 @@ module Yodlicious
 
     def configure config = {}
       validate config
-      @base_url = config[:base_url] || Yodlicious::Config.base_url
-      @cobranded_username = config[:cobranded_username] || Yodlicious::Config.cobranded_username
-      @cobranded_password = config[:cobranded_password] || Yodlicious::Config.cobranded_password
-      @proxy_url = config[:proxy_url] || Yodlicious::Config.proxy_url
-      @logger = config[:logger] || Yodlicious::Config.logger
+      @base_url = config[:base_url] || Yodleeicious::Config.base_url
+      @cobranded_username = config[:cobranded_username] || Yodleeicious::Config.cobranded_username
+      @cobranded_password = config[:cobranded_password] || Yodleeicious::Config.cobranded_password
+      @proxy_url = config[:proxy_url] || Yodleeicious::Config.proxy_url
+      @logger = config[:logger] || Yodleeicious::Config.logger
       
       info_log "YodleeApi configured with base_url=#{base_url} cobranded_username=#{cobranded_username} proxy_url=#{proxy_url} logger=#{logger}"
     end
@@ -161,9 +161,9 @@ module Yodlicious
             add_site_account_response.body['siteRefreshInfo'] = refresh_info_response.body unless refresh_info_response.fail?
           end while should_retry_get_site_refresh_info? refresh_info_response, try, max_trys
         end
-
-        add_site_account_response
       end
+
+      add_site_account_response
     end
 
     def should_retry_get_site_refresh_info? response, try, max_trys
@@ -215,7 +215,6 @@ module Yodlicious
         questionsArray = field_info['questionAndAnswerValues']
         i = 0
         while i < questionsArray.length do
-          puts "questionsArray= #{questionsArray[i].class} #{i}"
           params["userResponse.quesAnsDetailArray[#{i}].answer"]=questionsArray[i]['fieldValue']
           params["userResponse.quesAnsDetailArray[#{i}].answerFieldType"]=questionsArray[i]['answerFieldType']
           params["userResponse.quesAnsDetailArray[#{i}].metaData"]=questionsArray[i]['metaData']
@@ -259,6 +258,10 @@ module Yodlicious
 
     def get_all_site_accounts
       user_session_execute_api '/jsonsdk/SiteAccountManagement/getAllSiteAccounts'
+    end
+
+    def get_site_login_form site_id
+      user_session_execute_api '/jsonsdk/SiteAccountManagement/getSiteLoginForm', { siteId: site_id }
     end
 
     def get_site_info site_id

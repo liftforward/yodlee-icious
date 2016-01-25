@@ -1,4 +1,4 @@
-require "yodlicious"
+require "yodleeicious"
 
 describe 'the yodlee api client integration tests', integration: true do
   let(:config) { 
@@ -6,11 +6,11 @@ describe 'the yodlee api client integration tests', integration: true do
       base_url: ENV['YODLEE_BASE_URL'],
       cobranded_username: ENV['YODLEE_COBRANDED_USERNAME'],
       cobranded_password: ENV['YODLEE_COBRANDED_PASSWORD'],
-      proxy_url: ENV['YODLICIOUS_PROXY_URL']
+      proxy_url: ENV['YODLEEICIOUS_PROXY_URL']
     }
   }
 
-  let(:api) { Yodlicious::YodleeApi.new(config) }
+  let(:api) { Yodleeicious::YodleeApi.new(config) }
 
   let(:registered_user) {
     {
@@ -19,12 +19,12 @@ describe 'the yodlee api client integration tests', integration: true do
     }
   }
 
-  describe 'the yodlee apis cobranded login endpoint', :focus do
+  describe 'the yodlee apis cobranded login endpoint' do
     context 'Given valid cobranded credentials and base_url' do
       context 'When /authenticate/coblogin is called the return' do
         subject { api.cobranded_login }
 
-        it { is_expected.to be_kind_of(Yodlicious::Response) }
+        it { is_expected.to be_kind_of(Yodleeicious::Response) }
         it { is_expected.to be_success }
 
         it 'contains valid json response' do
@@ -44,7 +44,7 @@ describe 'the yodlee api client integration tests', integration: true do
             api.user_login 'testuser', 'testpassword'
           }
 
-          it { is_expected.to be_kind_of(Yodlicious::Response) }
+          it { is_expected.to be_kind_of(Yodleeicious::Response) }
           it { is_expected.to be_fail }
 
           it 'returns an error response' do
@@ -60,7 +60,7 @@ describe 'the yodlee api client integration tests', integration: true do
             api.user_login 'testuser', 'testpassword'
           }
 
-          it { is_expected.to be_kind_of(Yodlicious::Response) }
+          it { is_expected.to be_kind_of(Yodleeicious::Response) }
           it { is_expected.to be_fail }
 
           it 'returns an error response' do
@@ -85,7 +85,7 @@ describe 'the yodlee api client integration tests', integration: true do
           }
 
           it 'is expected to offer a valid response' do
-            is_expected.to be_kind_of(Yodlicious::Response)
+            is_expected.to be_kind_of(Yodleeicious::Response)
             is_expected.to be_success
             expect(subject.body['errorOccurred']).to be_nil
             expect(subject.body['userContext']['conversationCredentials']['sessionToken']).to be_kind_of(String)
@@ -110,7 +110,7 @@ describe 'the yodlee api client integration tests', integration: true do
 
 
           it 'is expected to offer a valid response' do
-            is_expected.to be_kind_of(Yodlicious::Response)
+            is_expected.to be_kind_of(Yodleeicious::Response)
             is_expected.to be_success
             expect(api.user_session_token).to be_nil
           end
@@ -122,7 +122,7 @@ describe 'the yodlee api client integration tests', integration: true do
     end
   end
 
-  describe 'the yodlicious login_or_register_user method' do
+  describe 'the yodleeicious login_or_register_user method' do
     before { api.cobranded_login }
 
     context 'Given a new user with valid credentials' do
@@ -135,7 +135,7 @@ describe 'the yodlee api client integration tests', integration: true do
 
         it 'should register the new user and set the user_session_token'  do 
           expect(subject).to be_success
-          expect(subject).to be_kind_of(Yodlicious::Response)
+          expect(subject).to be_kind_of(Yodleeicious::Response)
           expect(api.user_session_token).not_to be_nil
         end
       end
@@ -149,7 +149,7 @@ describe 'the yodlee api client integration tests', integration: true do
 
         it 'should login the user and not register them' do
           expect(subject).to be_success
-          expect(subject).to be_kind_of(Yodlicious::Response)
+          expect(subject).to be_kind_of(Yodleeicious::Response)
           expect(api.user_session_token).not_to be_nil
         end
       end
@@ -167,7 +167,7 @@ describe 'the yodlee api client integration tests', integration: true do
 
         it 'is expected to contain login form details' do
           is_expected.not_to be_nil
-          is_expected.to be_kind_of(Yodlicious::Response)
+          is_expected.to be_kind_of(Yodleeicious::Response)
           expect(subject.body['errorOccurred']).to be_nil
           expect(subject.body['loginForms']).not_to be_nil
           expect(subject.body['loginForms']).to be_kind_of(Array)
@@ -187,7 +187,7 @@ describe 'the yodlee api client integration tests', integration: true do
 
         it 'is expected to contain valid content services info' do
           is_expected.not_to be_nil
-          is_expected.to be_kind_of(Yodlicious::Response)
+          is_expected.to be_kind_of(Yodleeicious::Response)
           is_expected.to be_success
           expect(subject.body['errorOccurred']).to be_nil
           expect(subject.body['siteId']).to eq(16441)
@@ -200,7 +200,7 @@ describe 'the yodlee api client integration tests', integration: true do
 
         it 'is expected to contain valid error details' do
           is_expected.not_to be_nil
-          is_expected.to be_kind_of(Yodlicious::Response)
+          is_expected.to be_kind_of(Yodleeicious::Response)
           is_expected.to be_fail
           expect(subject.body['errorOccurred']).to be_truthy
           expect(subject.body['exceptionType']).to eq('com.yodlee.core.routingnumberservice.InvalidRoutingNumberException')
@@ -209,26 +209,31 @@ describe 'the yodlee api client integration tests', integration: true do
     end
   end
 
-  describe '#get_mfa_response_for_site', :focus do
+  describe '#get_mfa_response_for_site' do
     context 'Given a valid cobranded credentials and base_url' do
       context 'Given a user who it logged into the api' do
         context 'When #get_mfa_response_for_site is called the response' do
           subject {
             api.cobranded_login
             response = api.login_or_register_user "testuser#{rand(100...200)}", 'testpassword143', 'test@test.com'
-
-            dag_fmfa_login_form['componentList'][0]['fieldValue'] = 'yodlicious1.site16445.1'
-            dag_fmfa_login_form['componentList'][1]['fieldValue'] = 'site16445.1'
-
-            response = api.add_site_account_and_wait(16445, dag_fmfa_login_form)
             expect(response).to be_success
-            # puts "refreshMode= #{response.body['siteRefreshInfo']['siteRefreshMode']['refreshMode']}"
+
+            response = api.get_site_login_form(16445)
+            expect(response).to be_success
+
+            login_form = response.body
+            login_form['componentList'][0]['fieldValue'] = 'yodlicious1.site16445.1'
+            login_form['componentList'][1]['fieldValue'] = 'site16445.1'
+
+            response = api.add_site_account_and_wait(16445, login_form)
+            expect(response).to be_success
+
             expect(response.body['siteRefreshInfo']['siteRefreshMode']['refreshMode']).to eq('MFA')
             api.get_mfa_response_for_site response.body['siteAccountId']
           }
 
           it 'is expected be a valid response' do
-            is_expected.to be_kind_of(Yodlicious::Response)
+            is_expected.to be_kind_of(Yodleeicious::Response)
             is_expected.to be_success
             expect(subject.body['isMessageAvailable']).not_to be_nil
           end
@@ -246,19 +251,24 @@ describe 'the yodlee api client integration tests', integration: true do
           subject {
             api.cobranded_login
             response = api.login_or_register_user "testuser#{rand(100...200)}", 'testpassword143', 'test@test.com'
+            expect(response).to be_success
 
-            dag_fmfa_login_form['componentList'][0]['fieldValue'] = 'yodlicious1.site16445.1'
-            dag_fmfa_login_form['componentList'][1]['fieldValue'] = 'site16445.1'
+            response = api.get_site_login_form(16445)
+            expect(response).to be_success
 
-            response = api.add_site_account(16445, dag_fmfa_login_form)
+            login_form = response.body
+            login_form['componentList'][0]['fieldValue'] = 'yodlicious1.site16445.1'
+            login_form['componentList'][1]['fieldValue'] = 'site16445.1'
+
+            response = api.add_site_account(16445, login_form)
             expect(response).to be_success
 
             expect(response.body['siteRefreshInfo']['siteRefreshMode']['refreshMode']).to eq('MFA')
-            api.get_mfa_response_for_site_and_wait response.body['siteAccountId'], 1
+            api.get_mfa_response_for_site_and_wait response.body['siteAccountId'], 2
           }
 
           it 'is expected be a valid response' do
-            is_expected.to be_kind_of(Yodlicious::Response)
+            is_expected.to be_kind_of(Yodleeicious::Response)
             is_expected.to be_success
             expect(subject.body['isMessageAvailable']).to be_truthy
             expect(subject.body['fieldInfo']).not_to be_nil
@@ -279,28 +289,20 @@ describe 'the yodlee api client integration tests', integration: true do
               api.cobranded_login
               response = api.login_or_register_user "testuser#{rand(100...200)}", 'testpassword143', 'test@test.com'
 
-              dag_fmfa_login_form['componentList'][0]['fieldValue'] = 'yodlicious1.site16445.1'
-              dag_fmfa_login_form['componentList'][1]['fieldValue'] = 'site16445.1'
+              response = api.get_site_login_form(16445)
+              expect(response).to be_success
 
-              response = api.add_site_account(16445, dag_fmfa_login_form)
+              login_form = response.body
+
+              login_form['componentList'][0]['fieldValue'] = 'yodlicious1.site16445.1'
+              login_form['componentList'][1]['fieldValue'] = 'site16445.1'
+
+              response = api.add_site_account(16445, login_form)
               expect(response).to be_success
 
               expect(response.body['siteRefreshInfo']['siteRefreshMode']['refreshMode']).to eq('MFA')
               site_account_id = response.body['siteAccountId']
               response = api.get_mfa_response_for_site_and_wait site_account_id, 2
-              #{ 
-              #  "isMessageAvailable":true,
-              #  "fieldInfo":{
-              #    "responseFieldType":"text",
-              #    "minimumLength":-1,
-              #    "maximumLength":6,
-              #    "displayString":"Security Key"
-              #  },
-              #  "timeOutTime":116420,
-              #  "itemId":0,
-              #  "memSiteAccId":10992295,
-              #  "retry":false
-              #}
               expect(response.body['isMessageAvailable']).to be_truthy
 
               field_info = response.body['fieldInfo']
@@ -309,7 +311,7 @@ describe 'the yodlee api client integration tests', integration: true do
             }
 
             it 'is expected be a valid response' do
-              is_expected.to be_kind_of(Yodlicious::Response)
+              is_expected.to be_kind_of(Yodleeicious::Response)
               is_expected.to be_success
               expect(subject.body['primitiveObj']).to be_truthy
             end
@@ -324,43 +326,19 @@ describe 'the yodlee api client integration tests', integration: true do
               api.cobranded_login
               response = api.login_or_register_user "testuser#{rand(100...200)}", 'testpassword143', 'test@test.com'
 
-              dag_sqa_login_form['componentList'][0]['fieldValue'] = 'yodlicious1.site16486.1'
-              dag_sqa_login_form['componentList'][1]['fieldValue'] = 'site16486.1'
+              response = api.get_site_login_form(16486)
+              expect(response).to be_success
 
-              response = api.add_site_account(16486, dag_sqa_login_form)
+              login_form = response.body
+              login_form['componentList'][0]['fieldValue'] = 'yodlicious1.site16486.1'
+              login_form['componentList'][1]['fieldValue'] = 'site16486.1'
+
+              response = api.add_site_account(16486, login_form)
               expect(response).to be_success
 
               expect(response.body['siteRefreshInfo']['siteRefreshMode']['refreshMode']).to eq('MFA')
               site_account_id = response.body['siteAccountId']
               response = api.get_mfa_response_for_site_and_wait site_account_id, 2
-              # {
-              #   "isMessageAvailable":true,
-              #   "fieldInfo":{
-              #     "questionAndAnswerValues":[
-              #       {
-              #         "question":"What is the name of your state?",
-              #         "questionFieldType":"label",
-              #         "responseFieldType":"text",
-              #         "isRequired":"true",
-              #         "sequence":1,
-              #         "metaData":"QUESTION_1"
-              #       },
-              #       {
-              #         "question":"What is the name of your first school",
-              #         "questionFieldType":"label",
-              #         "responseFieldType":"text",
-              #         "isRequired":"true",
-              #         "sequence":2,
-              #         "metaData":"QUESTION_2"
-              #       }
-              #     ],
-              #     "numOfMandatoryQuestions":-1
-              #   },
-              #   "timeOutTime":96180,
-              #   "itemId":0,
-              #   "memSiteAccId":11025687,
-              #   "retry":false
-              # }
               expect(response.body['isMessageAvailable']).to be_truthy
 
               field_info = response.body['fieldInfo']
@@ -370,7 +348,7 @@ describe 'the yodlee api client integration tests', integration: true do
             }
 
             it 'is expected be a valid response' do
-              is_expected.to be_kind_of(Yodlicious::Response)
+              is_expected.to be_kind_of(Yodleeicious::Response)
               is_expected.to be_success
               expect(subject.body['primitiveObj']).to be_truthy
             end
@@ -384,44 +362,21 @@ describe 'the yodlee api client integration tests', integration: true do
             subject {
               api.cobranded_login
               response = api.login_or_register_user "testuser#{rand(100...200)}", 'testpassword143', 'test@test.com'
+              expect(response).to be_success
 
-              dag_sqa_login_form['componentList'][0]['fieldValue'] = 'yodlicious1.site18769.1'
-              dag_sqa_login_form['componentList'][1]['fieldValue'] = 'site18769.1'
+              response = api.get_site_login_form(18769)
+              expect(response).to be_success
 
-              response = api.add_site_account(18769, dag_sqa_login_form)
+              login_form = response.body
+              login_form['componentList'][0]['fieldValue'] = 'yodlicious1.site18769.1'
+              login_form['componentList'][1]['fieldValue'] = 'site18769.1'
+
+              response = api.add_site_account(18769, login_form)
               expect(response).to be_success
 
               expect(response.body['siteRefreshInfo']['siteRefreshMode']['refreshMode']).to eq('MFA')
               site_account_id = response.body['siteAccountId']
               response = api.get_mfa_response_for_site_and_wait site_account_id, 2
-              # {
-              #   "isMessageAvailable":true,
-              #   "fieldInfo":{
-              #     "questionAndAnswerValues":[
-              #       {
-              #         "question":"What is the name of your state?",
-              #         "questionFieldType":"label",
-              #         "responseFieldType":"text",
-              #         "isRequired":"true",
-              #         "sequence":1,
-              #         "metaData":"QUESTION_1"
-              #       },
-              #       {
-              #         "question":"What is the name of your first school",
-              #         "questionFieldType":"label",
-              #         "responseFieldType":"text",
-              #         "isRequired":"true",
-              #         "sequence":2,
-              #         "metaData":"QUESTION_2"
-              #       }
-              #     ],
-              #     "numOfMandatoryQuestions":-1
-              #   },
-              #   "timeOutTime":96180,
-              #   "itemId":0,
-              #   "memSiteAccId":11025687,
-              #   "retry":false
-              # }
               expect(response.body['isMessageAvailable']).to be_truthy
 
               field_info = response.body['fieldInfo']
@@ -430,7 +385,7 @@ describe 'the yodlee api client integration tests', integration: true do
             }
 
             it 'is expected be a valid response' do
-              is_expected.to be_kind_of(Yodlicious::Response)
+              is_expected.to be_kind_of(Yodleeicious::Response)
               is_expected.to be_success
               expect(subject.body['primitiveObj']).to be_truthy
             end
@@ -452,13 +407,6 @@ describe 'the yodlee api client integration tests', integration: true do
         # dag_login_form[:componentList][1][:value] = 'site16441.1'
         # api.add_site_account_and_wait(16441, dag_login_form)
       }
-
-      # after {
-      #   begin
-      #     api.unregister_user
-      #   rescue
-      #   end
-      # }
 
       context 'when getAllSiteAccounts is called the return' do 
         subject { api.get_all_site_accounts }
@@ -485,7 +433,7 @@ describe 'the yodlee api client integration tests', integration: true do
         it 'is expected to return an array site summaries' do
           # puts JSON.pretty_generate(subject)
 
-          is_expected.to be_kind_of(Yodlicious::Response)
+          is_expected.to be_kind_of(Yodleeicious::Response)
           is_expected.to be_success
           expect(subject.body[0]['itemId']).not_to be_nil
         end
@@ -497,7 +445,7 @@ describe 'the yodlee api client integration tests', integration: true do
         it 'is expected to return an array of site summaries' do
           # puts JSON.pretty_generate(subject)
 
-          is_expected.to be_kind_of(Yodlicious::Response)
+          is_expected.to be_kind_of(Yodleeicious::Response)
           is_expected.to be_success
           expect(subject.body.length).to be > 0
           expect(subject.body[0]['itemId']).not_to be_nil
@@ -523,7 +471,7 @@ describe 'the yodlee api client integration tests', integration: true do
           # puts JSON.pretty_generate(subject.body)
 
           is_expected.not_to be_nil
-          is_expected.to be_kind_of(Yodlicious::Response)
+          is_expected.to be_kind_of(Yodleeicious::Response)
           is_expected.to be_success
           expect(subject.body['errorOccurred']).to be_nil
           expect(subject.body['searchIdentifier']).not_to be_nil
@@ -534,128 +482,10 @@ describe 'the yodlee api client integration tests', integration: true do
     end
   end
 
-
-  # puts JSON.pretty_generate(subject)
-
-  # context 'downloading transaction history' 
-
-  # context 'fetching a list of content services' do
-  #   let (:api) { Yodlee::Base.new }
-  #   before { api.login }
-
-  #   subject { api.all_content_services }
-
-  #   it 'returns a set of content services' do
-  #     expect(subject).not_to be_empty
-  #   end
-  # end
-
-
-  # context 'failing to create a new session' do
-  #   it 'handles non 200 response gracefully'
-  #   it 'handles 200 response with error message'
-  # end
-
-  # context 'failing when running a search for a site' do
-  #   it 'return error json'
-  # end
-
-
-          # { 
-          #   "siteAccountId"=>10921402, 
-          #   "isCustom"=>false, 
-          #   "credentialsChangedTime"=>1424120024, 
-          #   "siteRefreshInfo"=>{
-          #     "siteRefreshStatus"=>{
-          #       "siteRefreshStatusId"=>1, 
-          #       "siteRefreshStatus"=>"REFRESH_TRIGGERED"
-          #       }, 
-          #     "siteRefreshMode"=>{
-          #       "refreshModeId"=>2, 
-          #       "refreshMode"=>"NORMAL"
-          #     }, 
-          #     "updateInitTime"=>1424120024, 
-          #     "nextUpdate"=>1424120924, 
-          #     "code"=>801, 
-          #     "suggestedFlow"=>{
-          #       "suggestedFlowId"=>2, 
-          #       "suggestedFlow"=>"REFRESH"
-          #     }, 
-          #     "noOfRetry"=>0
-          #   }, 
-          #   "siteInfo"=>{
-          #     "popularity"=>0, 
-          #     "siteId"=>643, 
-          #     "orgId"=>520, 
-          #     "defaultDisplayName"=>"Chase", 
-          #     "defaultOrgDisplayName"=>"Chase Manhattan Bank", 
-          #     "enabledContainers"=>[
-          #       {"containerName"=>"bank", "assetType"=>1}, 
-          #       {"containerName"=>"bill_payment", "assetType"=>0}, 
-          #       {"containerName"=>"credits", "assetType"=>2}, 
-          #       {"containerName"=>"stocks", "assetType"=>1}, 
-          #       {"containerName"=>"loans", "assetType"=>2}, 
-          #       {"containerName"=>"mortgage", "assetType"=>2}, 
-          #       {"containerName"=>"miles", "assetType"=>0}
-          #     ], 
-          #     "baseUrl"=>"http://www.chase.com/", 
-          #     "loginForms"=>[], 
-          #     "isHeld"=>false, 
-          #     "isCustom"=>false, 
-          #     "siteSearchVisibility"=>true, 
-          #     "isAlreadyAddedByUser"=>true, 
-          #     "isOauthEnabled"=>false
-          #   }, 
-          #   "created"=>"2015-02-16T12:53:44-0800", 
-          #   "retryCount"=>0
-          # }
-
-
-      #   {
-      #     conjunctionOp: {  
-      #       conjuctionOp: 1
-      #     },
-      #     componentList: [  
-      #       {  
-      #         valueIdentifier: 'LOGIN',
-      #         valueMask: 'LOGIN_FIELD',
-      #         fieldType: {  
-      #           typeName: 'IF_LOGIN'
-      #         },
-      #         size: 20,
-      #         maxlength: 32,
-      #         name: 'LOGIN',
-      #         displayName: 'User ID',
-      #         isEditable: true,
-      #         isOptional: false,
-      #         isEscaped: false,
-      #         helpText: 4710,
-      #         isOptionalMFA: false,
-      #         isMFA: false,
-      #         value: 'yodlicious.site16441.1'
-      #       },
-      #       {  
-      #         valueIdentifier: 'PASSWORD',
-      #         valueMask: 'LOGIN_FIELD',
-      #         fieldType: {  
-      #           typeName: 'IF_PASSWORD'
-      #         },
-      #         size: 20,
-      #         maxlength: 40,
-      #         name: 'PASSWORD',
-      #         displayName: 'Password',
-      #         isEditable: true,
-      #         isOptional: false,
-      #         isEscaped: false,
-      #         helpText: 11976,
-      #         isOptionalMFA: false,
-      #         isMFA: false,
-      #         value: 'site16441.1'
-      #       }
-      #     ],
-      #     defaultHelpText: 324
-      #   }
-      # }
+  pending 'downloading transaction history' 
+  pending 'fetching a list of content services'
+  pending 'failing to create a new session'
+  pending 'failing when running a search for a site'
 
   let(:dag_login_form) {
     JSON.parse('{
@@ -701,140 +531,4 @@ describe 'the yodlee api client integration tests', integration: true do
       "defaultHelpText": "16103"
     }')
   }
-
-  let(:dag_fmfa_login_form) {
-    {
-      "conjunctionOp"=> {
-        "conjuctionOp"=>1
-      },
-      "componentList"=> [ 
-        {
-          "valueIdentifier"=>"LOGIN1",
-          "valueMask"=>"LOGIN_FIELD",
-          "fieldType"=>{"typeName"=>"IF_LOGIN"},
-          "size"=>20,
-          "maxlength"=>40,
-          "name"=>"LOGIN1",
-          "displayName"=>"Catalog",
-          "isEditable"=>true,
-          "isOptional"=>false,
-          "isEscaped"=>false,
-          "helpText"=>"150876",
-          "isOptionalMFA"=>false,
-          "isMFA"=>false
-        },
-        {
-          "valueIdentifier"=>"PASSWORD1",
-          "valueMask"=>"LOGIN_FIELD",
-          "fieldType"=>{"typeName"=>"IF_PASSWORD"},
-          "size"=>20,
-          "maxlength"=>40,
-          "name"=>"PASSWORD1",
-          "displayName"=>"Password",
-          "isEditable"=>true,
-          "isOptional"=>false,
-          "isEscaped"=>false,
-          "helpText"=>"150877",
-          "isOptionalMFA"=>false,
-          "isMFA"=>false
-        }
-      ],
-      "defaultHelpText"=>"16126"
-    }
-  }
-
-  let(:dag_sqa_login_form) {
-    JSON.parse('{
-      "conjunctionOp":{
-        "conjuctionOp":1
-      },
-      "componentList":[
-        {
-          "valueIdentifier":"LOGIN",
-          "valueMask":"LOGIN_FIELD",
-          "fieldType":{
-            "typeName":"IF_LOGIN"
-          },
-          "size":20,
-          "maxlength":40,
-          "name":"LOGIN",
-          "displayName":"Catalog",
-          "isEditable":true,
-          "isOptional":false,
-          "isEscaped":false,
-          "helpText":"150978",
-          "isOptionalMFA":false,
-          "isMFA":false
-        },
-        {
-          "valueIdentifier":"PASSWORD",
-          "valueMask":"LOGIN_FIELD",
-          "fieldType":{
-            "typeName":"IF_PASSWORD"
-          },
-          "size":20,
-          "maxlength":40,
-          "name":"PASSWORD",
-          "displayName":"Password",
-          "isEditable":true,
-          "isOptional":false,
-          "isEscaped":false,
-          "helpText":"150979",
-          "isOptionalMFA":false,
-          "isMFA":false
-        }
-      ],
-      "defaultHelpText":"16176"
-    }')
-  }
 end
-
-
-
-  # {"popularity"=>0,
-  #  "siteId"=>16477,
-  #  "orgId"=>1148,
-  #  "defaultDisplayName"=>"DagSIteMFAAndNonMFA (US)",
-  #  "defaultOrgDisplayName"=>"Demo Bank",
-  #  "contentServiceInfos"=>
-  #   [{"contentServiceId"=>20631, "siteId"=>16477, "containerInfo"=>{"containerName"=>"bank", "assetType"=>1}},
-  #    {"contentServiceId"=>20632, "siteId"=>16477, "containerInfo"=>{"containerName"=>"miles", "assetType"=>0}}],
-  #  "enabledContainers"=>[{"containerName"=>"bank", "assetType"=>1}, {"containerName"=>"miles", "assetType"=>0}],
-  #  "baseUrl"=>"http://192.168.210.152:9090/dag/dhaction.do",
-  #  "loginForms"=>
-  #   [{"conjunctionOp"=>{"conjuctionOp"=>1},
-  #     "componentList"=>
-  #      [{"valueIdentifier"=>"LOGIN",
-  #        "valueMask"=>"LOGIN_FIELD",
-  #        "fieldType"=>{"typeName"=>"IF_LOGIN"},
-  #        "size"=>20,
-  #        "maxlength"=>40,
-  #        "name"=>"LOGIN",
-  #        "displayName"=>"Catalog",
-  #        "isEditable"=>true,
-  #        "isOptional"=>false,
-  #        "isEscaped"=>false,
-  #        "helpText"=>"150970",
-  #        "isOptionalMFA"=>false,
-  #        "isMFA"=>false},
-  #       {"valueIdentifier"=>"PASSWORD",
-  #        "valueMask"=>"LOGIN_FIELD",
-  #        "fieldType"=>{"typeName"=>"IF_PASSWORD"},
-  #        "size"=>20,
-  #        "maxlength"=>40,
-  #        "name"=>"PASSWORD",
-  #        "displayName"=>"Password",
-  #        "isEditable"=>true,
-  #        "isOptional"=>false,
-  #        "isEscaped"=>false,
-  #        "helpText"=>"150971",
-  #        "isOptionalMFA"=>false,
-  #        "isMFA"=>false}],
-  #     "defaultHelpText"=>"16167"}],
-  #  "isHeld"=>false,
-  #  "isCustom"=>false,
-  #  "mfaType"=>{"typeId"=>4, "typeName"=>"SECURITY_QUESTION"},
-  #  "mfaCoverage"=>"FMPA",
-  #  "siteSearchVisibility"=>true,
-  #  "isAlreadyAddedByUser"=>false,
-  #  "isOauthEnabled"=>false}

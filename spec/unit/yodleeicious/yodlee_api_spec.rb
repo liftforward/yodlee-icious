@@ -1,16 +1,16 @@
-require "yodlicious"
-require "yodlicious/config"
+require "yodleeicious"
+require "yodleeicious/config"
 
-describe Yodlicious::YodleeApi do
+describe Yodleeicious::YodleeApi do
 
   context 'Given a new uninitialized YodleeApi object' do
     before {
-      Yodlicious::Config.base_url=nil
-      Yodlicious::Config.cobranded_username=nil
-      Yodlicious::Config.cobranded_password=nil
-      Yodlicious::Config.proxy_url=nil
+      Yodleeicious::Config.base_url=nil
+      Yodleeicious::Config.cobranded_username=nil
+      Yodleeicious::Config.cobranded_password=nil
+      Yodleeicious::Config.proxy_url=nil
     }
-    subject { Yodlicious::YodleeApi.new }
+    subject { Yodleeicious::YodleeApi.new }
 
     it 'should return nil for cobranded_auth' do
       expect(subject.cobranded_auth).to be_nil
@@ -33,15 +33,15 @@ describe Yodlicious::YodleeApi do
     end
   end
 
-  context 'Given a Yodlicious::Config with nil configuration' do
+  context 'Given a Yodleeicious::Config with nil configuration' do
     context 'When a new YodleeApi instance is created with no configuration' do
       before {
-        Yodlicious::Config.base_url=nil
-        Yodlicious::Config.cobranded_username=nil
-        Yodlicious::Config.cobranded_password=nil
-        Yodlicious::Config.proxy_url=nil
+        Yodleeicious::Config.base_url=nil
+        Yodleeicious::Config.cobranded_username=nil
+        Yodleeicious::Config.cobranded_password=nil
+        Yodleeicious::Config.proxy_url=nil
       }
-      subject { Yodlicious::YodleeApi.new }
+      subject { Yodleeicious::YodleeApi.new }
 
       it 'no base_url set' do
         expect(subject.base_url).to be_nil
@@ -69,15 +69,15 @@ describe Yodlicious::YodleeApi do
     end
   end
 
-  context 'Given a Yodlicious::Config with a configuration' do
+  context 'Given a Yodleeicious::Config with a configuration' do
     context 'When a new YodleeApi instance is created with the global configuration set' do
       before {
-        Yodlicious::Config.base_url='base url'
-        Yodlicious::Config.cobranded_username='user name'
-        Yodlicious::Config.cobranded_password='password'
-        Yodlicious::Config.proxy_url='socks5h://somehostname'
+        Yodleeicious::Config.base_url='base url'
+        Yodleeicious::Config.cobranded_username='user name'
+        Yodleeicious::Config.cobranded_password='password'
+        Yodleeicious::Config.proxy_url='socks5h://somehostname'
       }
-      subject { Yodlicious::YodleeApi.new }
+      subject { Yodleeicious::YodleeApi.new }
 
       it 'base_url set' do
         expect(subject.base_url).to eq('base url')
@@ -105,13 +105,13 @@ describe Yodlicious::YodleeApi do
     end
   end
   
-  context 'Given a Yodlicious::Config with nil configuration' do
+  context 'Given a Yodleeicious::Config with nil configuration' do
     context 'When a new YodleeApi instance is created and provided a configuration' do
       before {
-        Yodlicious::Config.base_url=nil
-        Yodlicious::Config.cobranded_username=nil
-        Yodlicious::Config.cobranded_password=nil
-        Yodlicious::Config.proxy_url=nil
+        Yodleeicious::Config.base_url=nil
+        Yodleeicious::Config.cobranded_username=nil
+        Yodleeicious::Config.cobranded_password=nil
+        Yodleeicious::Config.proxy_url=nil
       }
       let(:config) {
         { 
@@ -122,7 +122,7 @@ describe Yodlicious::YodleeApi do
         }
       }
 
-      subject { Yodlicious::YodleeApi.new(config) }
+      subject { Yodleeicious::YodleeApi.new(config) }
 
       it 'the provided base url is set' do
         expect(subject.base_url).to eq(config[:base_url])
@@ -154,13 +154,13 @@ describe Yodlicious::YodleeApi do
     end
   end
 
-  context 'Given a Yodlicious::Config with set config values' do
+  context 'Given a Yodleeicious::Config with set config values' do
     context 'When a new YodleeApi instance is created and provided a configuration' do
       before {
-        Yodlicious::Config.base_url='base url'
-        Yodlicious::Config.cobranded_username='user name'
-        Yodlicious::Config.cobranded_password='password'
-        Yodlicious::Config.proxy_url='socks5h://somehostname'
+        Yodleeicious::Config.base_url='base url'
+        Yodleeicious::Config.cobranded_username='user name'
+        Yodleeicious::Config.cobranded_password='password'
+        Yodleeicious::Config.proxy_url='socks5h://somehostname'
       }
       let(:config) { 
          {
@@ -171,7 +171,7 @@ describe Yodlicious::YodleeApi do
          }
       }
 
-      subject { Yodlicious::YodleeApi.new(config) }
+      subject { Yodleeicious::YodleeApi.new(config) }
 
       it 'the provided base url is set' do
         expect(subject.base_url).to eq(config[:base_url])
@@ -203,13 +203,13 @@ describe Yodlicious::YodleeApi do
     end
   end
 
-  context 'Given a Yodlicious::Config with nil config values' do
+  context 'Given a Yodleeicious::Config with nil config values' do
     context 'When a new YodleeApi instance is configured with no proxy_url' do
       before {
-        Yodlicious::Config.base_url=nil
-        Yodlicious::Config.cobranded_username=nil
-        Yodlicious::Config.cobranded_password=nil
-        Yodlicious::Config.proxy_url=nil
+        Yodleeicious::Config.base_url=nil
+        Yodleeicious::Config.cobranded_username=nil
+        Yodleeicious::Config.cobranded_password=nil
+        Yodleeicious::Config.proxy_url=nil
       }
       let(:config) {
         {
@@ -219,7 +219,7 @@ describe Yodlicious::YodleeApi do
         }
       }
 
-      subject { Yodlicious::YodleeApi.new(config) }
+      subject { Yodleeicious::YodleeApi.new(config) }
 
       it 'no proxy_url is set' do
         expect(subject.proxy_url).to be_nil
@@ -236,11 +236,12 @@ describe Yodlicious::YodleeApi do
   end
 
   describe '#should_retry_get_mfa_response?' do
-    let (:api) { Yodlicious::YodleeApi.new }
-    let (:response) { double("response") }
+    let (:api) { Yodleeicious::YodleeApi.new }
+    let (:response) { instance_double("Yodleeicious::Response") }
 
     context 'Given get mfa response has failed' do
       before { allow(response).to receive(:success?).and_return(false) }
+      before { allow(response).to receive(:body).and_return({}) }
       subject { api.should_retry_get_mfa_response?(response,0,1) }
       it { is_expected.to be_falsy }
     end
@@ -278,7 +279,7 @@ describe Yodlicious::YodleeApi do
   end
 
   describe '#should_retry_get_site_refresh_info' do
-    let (:api) { Yodlicious::YodleeApi.new }
+    let (:api) { Yodleeicious::YodleeApi.new }
     let (:response) { double("response") }
 
     context 'Given get mfa response has failed' do

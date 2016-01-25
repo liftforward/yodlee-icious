@@ -1,4 +1,4 @@
-module Yodlicious
+module Yodleeicious
   class Response
 
     def initialize body
