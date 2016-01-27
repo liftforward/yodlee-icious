@@ -1,6 +1,6 @@
 
 # Yodlee-icious
-[![Gem Version](https://badge.fury.io/rb/yodlicious.svg)](http://badge.fury.io/rb/yodlicious)  [![Code Climate](https://codeclimate.com/repos/556dcf7fe30ba00903005872/badges/9398ac76dbcae2084eeb/gpa.svg)](https://codeclimate.com/repos/556dcf7fe30ba00903005872/feed) [![Test Coverage](https://codeclimate.com/repos/556dcf7fe30ba00903005872/badges/9398ac76dbcae2084eeb/coverage.svg)](https://codeclimate.com/repos/556dcf7fe30ba00903005872/coverage)
+[![Gem Version](https://badge.fury.io/rb/yodlee-icious.svg)](http://badge.fury.io/rb/yodlee-icious)  [![Code Climate](https://codeclimate.com/repos/556dcf7fe30ba00903005872/badges/9398ac76dbcae2084eeb/gpa.svg)](https://codeclimate.com/repos/556dcf7fe30ba00903005872/feed) [![Test Coverage](https://codeclimate.com/repos/556dcf7fe30ba00903005872/badges/9398ac76dbcae2084eeb/coverage.svg)](https://codeclimate.com/repos/556dcf7fe30ba00903005872/coverage)
 [ ![Codeship Status for liftforward/yodlee-icious](https://codeship.com/projects/71603f00-9393-0132-dcd0-1a9a253548c0/status?branch=master)](https://codeship.com/projects/62288)
 
 Yodlee-icious (formally Yodlicious) is a ruby gem wrapping the Yodlee REST(ish) API. We had to build this for our integration with Yodlee which was somewhat more painful than it should have been so we figured we share to be a good neighbor.
