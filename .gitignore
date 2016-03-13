@@ -13,3 +13,5 @@
 *.a
 mkmf.log
 .env
+yodlee-icious.sublime-project
+yodlee-icious.sublime-workspace
