@@ -10,13 +10,15 @@ unless defined?(SPEC_HELPER_LOADED)
   require 'dotenv'
   Dotenv.load
 
-  Yodleeicious::Config.logger = Logger.new("log/test.log")
-  Yodleeicious::Config.logger.level = Logger::DEBUG
-
   RSpec.configure do |config|
 
     config.filter_run :focus
     config.run_all_when_everything_filtered = true
+
+    config.before(:example) do
+      Yodleeicious::Config.logger = Logger.new("log/test.log")
+      Yodleeicious::Config.logger.level = Logger::DEBUG
+    end
 
   end
 end
