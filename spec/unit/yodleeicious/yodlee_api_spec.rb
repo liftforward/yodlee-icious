@@ -31,6 +31,7 @@ describe Yodleeicious::YodleeApi do
     it 'should return a translator' do
       expect(subject.translator).not_to be_nil
     end
+
   end
 
   context 'Given a Yodleeicious::Config with nil configuration' do
@@ -104,7 +105,7 @@ describe Yodleeicious::YodleeApi do
       end
     end
   end
-  
+
   context 'Given a Yodleeicious::Config with nil configuration' do
     context 'When a new YodleeApi instance is created and provided a configuration' do
       before {
@@ -114,7 +115,7 @@ describe Yodleeicious::YodleeApi do
         Yodleeicious::Config.proxy_url=nil
       }
       let(:config) {
-        { 
+        {
           base_url: "https://rest.developer.yodlee.com/services/srest/restserver/v1.0",
           cobranded_username: "some_username",
           cobranded_password: "some_password",
@@ -162,7 +163,7 @@ describe Yodleeicious::YodleeApi do
         Yodleeicious::Config.cobranded_password='password'
         Yodleeicious::Config.proxy_url='socks5h://somehostname'
       }
-      let(:config) { 
+      let(:config) {
          {
            base_url: "https://rest.developer.yodlee.com/services/srest/restserver/v1.0",
            cobranded_username: "some_username",
@@ -245,7 +246,7 @@ describe Yodleeicious::YodleeApi do
       subject { api.should_retry_get_mfa_response?(response,0,1) }
       it { is_expected.to be_falsy }
     end
-    
+
     context 'Given get mfa response is success' do
       before { allow(response).to receive(:success?).and_return(true) }
 
