@@ -2,10 +2,10 @@ require "yodleeicious"
 
 describe Yodleeicious::Response do
   let(:error_response_1) {
-    { 
-      "errorOccurred"=>"true", 
-      "exceptionType"=>"com.yodlee.core.IllegalArgumentValueException", 
-      "referenceCode"=>"_3932d208-345a-400f-a273-83619b8b548b", 
+    {
+      "errorOccurred"=>"true",
+      "exceptionType"=>"com.yodlee.core.IllegalArgumentValueException",
+      "referenceCode"=>"_3932d208-345a-400f-a273-83619b8b548b",
       "message"=>"Multiple exceptions encapsulated within: invoke getWrappedExceptions for details"
     }
   }
@@ -21,6 +21,21 @@ describe Yodleeicious::Response do
   let(:success_array_response) {
     [{}]
   }
+
+  shared_examples 'sets_the_requests' do
+    it 'sets the response data' do
+      expect(subject.response).not_to be_nil
+    end
+
+    it 'sets the request_url' do
+      expect(subject.request_url).not_to be_nil
+    end
+
+    it 'sets payload' do
+      expect(subject.payload).not_to be_nil
+    end
+  end
+
 
   context 'When the error_response is the errorOccured syntax' do
     subject { Yodleeicious::Response.new error_response_1 }

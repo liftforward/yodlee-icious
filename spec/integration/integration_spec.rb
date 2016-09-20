@@ -1,8 +1,8 @@
 require "yodleeicious"
 
 describe 'the yodlee api client integration tests', integration: true do
-  let(:config) { 
-    { 
+  let(:config) {
+    {
       base_url: ENV['YODLEE_BASE_URL'],
       cobranded_username: ENV['YODLEE_COBRANDED_USERNAME'],
       cobranded_password: ENV['YODLEE_COBRANDED_PASSWORD'],
@@ -19,6 +19,21 @@ describe 'the yodlee api client integration tests', integration: true do
     }
   }
 
+  shared_examples "request_response_examples" do
+    it 'sets the response data' do
+      expect(subject.response).not_to be_nil
+    end
+
+    it 'sets the request_url' do
+      expect(subject.request_url).not_to be_nil
+    end
+
+    it 'sets payload' do
+      expect(subject.payload).not_to be_nil
+    end
+  end
+
+
   describe 'the yodlee apis cobranded login endpoint' do
     context 'Given valid cobranded credentials and base_url' do
       context 'When /authenticate/coblogin is called the return' do
@@ -26,6 +41,8 @@ describe 'the yodlee api client integration tests', integration: true do
 
         it { is_expected.to be_kind_of(Yodleeicious::Response) }
         it { is_expected.to be_success }
+
+        include_examples 'request_response_examples'
 
         it 'contains valid json response' do
           expect(subject.body['cobrandConversationCredentials']).not_to be_nil
@@ -39,13 +56,15 @@ describe 'the yodlee api client integration tests', integration: true do
     context 'Given valid cobranded credentials and base_url' do
       context 'Given a new user who does not exist within the cobranded account' do
         describe 'When /authenticate/coblogin is called the return' do
-          subject { 
+          subject {
             api.cobranded_login
             api.user_login 'testuser', 'testpassword'
           }
 
           it { is_expected.to be_kind_of(Yodleeicious::Response) }
           it { is_expected.to be_fail }
+
+          include_examples 'request_response_examples'
 
           it 'returns an error response' do
             expect(subject.body).to eq({"Error"=>[{"errorDetail"=>"Invalid User Credentials"}]})
@@ -55,13 +74,15 @@ describe 'the yodlee api client integration tests', integration: true do
 
       context 'Given a user who does exist within the cobranded account' do
         describe 'When /authenticate/coblogin is called the return' do
-          subject { 
+          subject {
             api.cobranded_login
             api.user_login 'testuser', 'testpassword'
           }
 
           it { is_expected.to be_kind_of(Yodleeicious::Response) }
           it { is_expected.to be_fail }
+
+          include_examples 'request_response_examples'
 
           it 'returns an error response' do
             expect(subject.body).to eq({"Error"=>[{"errorDetail"=>"Invalid User Credentials"}]})
@@ -83,6 +104,8 @@ describe 'the yodlee api client integration tests', integration: true do
           after {
             api.unregister_user
           }
+
+          include_examples 'request_response_examples'
 
           it 'is expected to offer a valid response' do
             is_expected.to be_kind_of(Yodleeicious::Response)
@@ -108,6 +131,7 @@ describe 'the yodlee api client integration tests', integration: true do
             api.unregister_user
           }
 
+          include_examples 'request_response_examples'
 
           it 'is expected to offer a valid response' do
             is_expected.to be_kind_of(Yodleeicious::Response)
@@ -133,7 +157,9 @@ describe 'the yodlee api client integration tests', integration: true do
       context 'When login_or_register_user is called' do
         subject { api.login_or_register_user email, password, email }
 
-        it 'should register the new user and set the user_session_token'  do 
+        include_examples 'request_response_examples'
+
+        it 'should register the new user and set the user_session_token'  do
           expect(subject).to be_success
           expect(subject).to be_kind_of(Yodleeicious::Response)
           expect(api.user_session_token).not_to be_nil
@@ -147,6 +173,8 @@ describe 'the yodlee api client integration tests', integration: true do
       context 'When login_or_register_user is called' do
         subject { api.login_or_register_user registered_user[:email], registered_user[:password], registered_user[:email] }
 
+        include_examples 'request_response_examples'
+
         it 'should login the user and not register them' do
           expect(subject).to be_success
           expect(subject).to be_kind_of(Yodleeicious::Response)
@@ -158,12 +186,14 @@ describe 'the yodlee api client integration tests', integration: true do
 
   describe '#get_site_info' do
     context 'Given a valid cobranded credentials and base_url' do
-      before { 
+      before {
         api.cobranded_login
       }
 
       context 'When a request for site info is performed the result' do
         subject { api.get_site_info 16441 }
+
+        include_examples 'request_response_examples'
 
         it 'is expected to contain login form details' do
           is_expected.not_to be_nil
@@ -185,6 +215,8 @@ describe 'the yodlee api client integration tests', integration: true do
       context 'When #get_content_service_info_by_routing_number is called with a valid routing number the result' do
         subject { api.get_content_service_info_by_routing_number 999988181 }
 
+        include_examples 'request_response_examples'
+
         it 'is expected to contain valid content services info' do
           is_expected.not_to be_nil
           is_expected.to be_kind_of(Yodleeicious::Response)
@@ -197,6 +229,8 @@ describe 'the yodlee api client integration tests', integration: true do
 
       context 'When #get_content_service_info_by_routing_number is called with an invalid routing number' do
         subject { api.get_content_service_info_by_routing_number -23423 }
+
+        include_examples 'request_response_examples'
 
         it 'is expected to contain valid error details' do
           is_expected.not_to be_nil
@@ -232,6 +266,8 @@ describe 'the yodlee api client integration tests', integration: true do
             api.get_mfa_response_for_site response.body['siteAccountId']
           }
 
+          include_examples 'request_response_examples'
+
           it 'is expected be a valid response' do
             is_expected.to be_kind_of(Yodleeicious::Response)
             is_expected.to be_success
@@ -266,6 +302,8 @@ describe 'the yodlee api client integration tests', integration: true do
             expect(response.body['siteRefreshInfo']['siteRefreshMode']['refreshMode']).to eq('MFA')
             api.get_mfa_response_for_site_and_wait response.body['siteAccountId'], 2
           }
+
+          include_examples 'request_response_examples'
 
           it 'is expected be a valid response' do
             is_expected.to be_kind_of(Yodleeicious::Response)
@@ -310,6 +348,8 @@ describe 'the yodlee api client integration tests', integration: true do
               api.put_mfa_request_for_site site_account_id, :MFATokenResponse, field_info
             }
 
+            include_examples 'request_response_examples'
+
             it 'is expected be a valid response' do
               is_expected.to be_kind_of(Yodleeicious::Response)
               is_expected.to be_success
@@ -346,6 +386,8 @@ describe 'the yodlee api client integration tests', integration: true do
               field_info['questionAndAnswerValues'][1]['fieldValue'] = 'w3schools'
               api.put_mfa_request_for_site site_account_id, :MFAQuesAnsResponse, field_info
             }
+
+            include_examples 'request_response_examples'
 
             it 'is expected be a valid response' do
               is_expected.to be_kind_of(Yodleeicious::Response)
@@ -384,6 +426,8 @@ describe 'the yodlee api client integration tests', integration: true do
               api.put_mfa_request_for_site site_account_id, :MFAImageResponse, field_info
             }
 
+            include_examples 'request_response_examples'
+
             it 'is expected be a valid response' do
               is_expected.to be_kind_of(Yodleeicious::Response)
               is_expected.to be_success
@@ -399,7 +443,7 @@ describe 'the yodlee api client integration tests', integration: true do
 
   describe 'the yodlee apis fetching summary data about registered site accounts endpoints' do
     context 'Given a registered user with registered accounts' do
-      before { 
+      before {
         api.cobranded_login
         api.user_login "testuser_with_transactions@liftforward.com", 'testpassword143'
         # api.register_user "testuser#{rand(100..999)}", 'testpassword143', 'test@test.com'
@@ -408,8 +452,10 @@ describe 'the yodlee api client integration tests', integration: true do
         # api.add_site_account_and_wait(16441, dag_login_form)
       }
 
-      context 'when getAllSiteAccounts is called the return' do 
+      context 'when getAllSiteAccounts is called the return' do
         subject { api.get_all_site_accounts }
+
+        include_examples 'request_response_examples'
 
         it 'is expected to return an array containing 1 siteAccount' do
           # puts JSON.pretty_generate(subject)
@@ -456,7 +502,7 @@ describe 'the yodlee api client integration tests', integration: true do
 
   describe 'the yodlee apis fetching user/s transactions' do
     context 'Given a registered user with registered accounts' do
-      before { 
+      before {
         api.cobranded_login
         api.login_or_register_user 'testuser_with_transactions@liftforward.com', 'testpassword143', 'testuser_with_transactions@liftforward.com'
         dag_login_form['componentList'][0]['fieldValue'] = 'yodlicious.site16441.1'
@@ -482,7 +528,7 @@ describe 'the yodlee api client integration tests', integration: true do
     end
   end
 
-  pending 'downloading transaction history' 
+  pending 'downloading transaction history'
   pending 'fetching a list of content services'
   pending 'failing to create a new session'
   pending 'failing when running a search for a site'
