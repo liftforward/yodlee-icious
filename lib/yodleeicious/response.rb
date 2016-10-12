@@ -2,8 +2,7 @@ module Yodleeicious
   class Response
 
     def initialize res, payload=nil
-      @body = JSON.parse(res.body)
-      @request_url = begin res.env.url.to_s rescue nil end
+      @res = res
       @payload = payload
     end
 
@@ -16,7 +15,7 @@ module Yodleeicious
     end
 
     def body
-      @body
+      @body ||= JSON.parse(@res.body)
     end
 
     def payload
@@ -24,7 +23,13 @@ module Yodleeicious
     end
 
     def request_url
-      @request_url
+      @res.env.url.to_s
+    rescue
+      nil
+    end
+
+    def status
+      @res.status
     end
 
     def response

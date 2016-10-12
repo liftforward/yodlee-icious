@@ -31,6 +31,10 @@ describe 'the yodlee api client integration tests', integration: true do
     it 'sets payload' do
       expect(subject.payload).not_to be_nil
     end
+
+    it 'sets the status code' do
+      expect(subject.status).not_to be_nil
+    end
   end
 
 
