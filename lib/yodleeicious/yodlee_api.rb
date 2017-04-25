@@ -256,6 +256,10 @@ module Yodleeicious
       user_session_execute_api '/jsonsdk/DataService/getItemSummariesForSite', { memSiteAccId: site_account_id }
     end
 
+    def get_all_sites
+      cobranded_session_execute_api '/jsonsdk/SiteTraversal/getAllSites'
+    end
+
     def get_all_site_accounts
       user_session_execute_api '/jsonsdk/SiteAccountManagement/getAllSiteAccounts'
     end
